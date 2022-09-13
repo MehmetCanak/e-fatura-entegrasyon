@@ -4,6 +4,7 @@ namespace web36\EFatura;
 
 use Sabre\Xml\Writer;
 use Sabre\Xml\XmlSerializable;
+use InvalidArgumentException;
 
 class Person implements XmlSerializable
 {
