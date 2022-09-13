@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Libraries\UblLibrary;
+namespace web36\EFatura\Library;
 
 use PHPUnit\Framework\TestCase;
 
@@ -14,6 +14,38 @@ class SimpleInvoiceTest extends TestCase
     
 
     /** @test */
+
+    public function test()
+    {
+        $invoice = new SimpleInvoice();
+        $invoice->setUBLVersionID('2.1');
+        $invoice->setCustomizationID('2.0');
+        $invoice->setProfileID('TEMEL FATURA');
+        $invoice->setID('FATURA-123456');
+        $invoice->setCopyIndicator(false);
+        $invoice->setUUID('1234567890123456789012345678901234567890123456789012345678901234');
+        $invoice->setIssueDate('2018-01-01');
+        $invoice->setInvoiceTypeCode('SATIS');
+        $invoice->setNote('Fatura Notu');
+        $invoice->setDocumentCurrencyCode('TRY');
+        $invoice->setLineCountNumeric(1);
+        
+        $invoice->setAccountingSupplierParty('1234567890', 'Firma Adı', 'Firma Adresi', 'Firma İlçesi', 'Firma İli', 'Firma Ülkesi', 'Firma Telefonu', 'Firma Fax', 'Firma E-Posta');
+        $invoice->setAccountingCustomerParty('1234567890', 'Müşteri Adı', 'Müşteri Adresi', 'Müşteri İlçesi', 'Müşteri İli', 'Müşteri Ülkesi', 'Müşteri Telefonu', 'Müşteri Fax', 'Müşteri E-Posta');
+        
+        $invoice->addInvoiceLine('1', 'Adet', 'Ürün Adı', 'Ürün Açıklaması', '1', '100', '18', '18', '118', '100', '18', '118');
+        
+        $invoice->setTaxTotal('18', '18', '18');
+        $invoice->setLegalMonetaryTotal('100', '18', '118');
+        
+        $xml = $invoice->getXML();
+        
+        $this->assertXmlStringEqualsXmlFile(__DIR__.'/SimpleInvoiceTest.xml', $xml);
+        
+        $this->assertTrue($invoice->validate($xml, $this->schema));
+        
+        return $xml;
+    }
     public function testIfXMLIsValid($record)
     {
         $billingReference = (new \web36\EFatura\BillingReference());
