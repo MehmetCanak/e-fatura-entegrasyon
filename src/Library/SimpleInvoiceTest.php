@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Libraries\UblLibrary;
+namespace web36\EFatura\Library;
 
 use PHPUnit\Framework\TestCase;
 use web36\EFatura\BillingReference;

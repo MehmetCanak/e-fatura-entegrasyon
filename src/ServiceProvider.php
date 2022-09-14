@@ -21,6 +21,16 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+
+        $this->app->singleton("Signature", function ($app) {
+            $config = config('efatura');
+
+            if (is_null($config)) {
+                throw InvalidConfiguration::configurationNotSet();
+            }
+
+            return new Signature();
+        });
         
     }
 }
