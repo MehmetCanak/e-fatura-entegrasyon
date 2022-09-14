@@ -8,7 +8,6 @@ use Sabre\Xml\XmlSerializable;
 class Price implements XmlSerializable
 {
     private $priceAmount;
-    private $baseQuantity;
     private $unitCode = UnitCode::UNIT;
 
     /**
@@ -26,24 +25,6 @@ class Price implements XmlSerializable
     public function setPriceAmount(?float $priceAmount): Price
     {
         $this->priceAmount = $priceAmount;
-        return $this;
-    }
-
-    /**
-     * @return float
-     */
-    public function getBaseQuantity(): ?float
-    {
-        return $this->baseQuantity;
-    }
-
-    /**
-     * @param float $baseQuantity
-     * @return Price
-     */
-    public function setBaseQuantity(?float $baseQuantity): Price
-    {
-        $this->baseQuantity = $baseQuantity;
         return $this;
     }
 
@@ -80,13 +61,6 @@ class Price implements XmlSerializable
                 'value' => number_format($this->priceAmount, 2, '.', ''),
                 'attributes' => [
                     'currencyID' => Generator::$currencyID
-                ]
-            ],
-            [
-                'name' => Schema::CBC . 'BaseQuantity',
-                'value' => number_format($this->baseQuantity, 2, '.', ''),
-                'attributes' => [
-                    'unitCode' => $this->unitCode
                 ]
             ]
         ]);

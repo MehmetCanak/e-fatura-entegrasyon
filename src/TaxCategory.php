@@ -15,7 +15,6 @@ class TaxCategory implements XmlSerializable
         'schemeName' => 'Duty or tax or fee category'
     ];
     private $name;
-    private $percent;
     private $taxScheme;
     private $taxExemptionReason;
     private $taxExemptionReasonCode;
@@ -163,9 +162,6 @@ class TaxCategory implements XmlSerializable
             throw new InvalidArgumentException('Missing taxcategory taxScheme');
         }
 
-        // if ($this->getPercent() === null) {
-        //     throw new InvalidArgumentException('Missing taxcategory percent');
-        // }
     }
 
     /**
@@ -178,22 +174,21 @@ class TaxCategory implements XmlSerializable
     {
         $this->validate();
 
-        $writer->write([
-            [
-                'name' => Schema::CBC . 'ID',
-                'value' => $this->getId(),
-                'attributes' => $this->idAttributes,
-            ],
-        ]);
-
+        if ($this->id !== null) {
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'ID',
+                    'value' => $this->getId(),
+                    'attributes' => $this->idAttributes,
+                ],
+            ]);
+        }
         if ($this->name !== null) {
             $writer->write([
                 Schema::CBC . 'Name' => $this->name,
             ]);
         }
-        $writer->write([
-            Schema::CBC . 'Percent' => number_format($this->percent, 2, '.', ''),
-        ]);
+
 
         if ($this->taxExemptionReasonCode !== null) {
             $writer->write([

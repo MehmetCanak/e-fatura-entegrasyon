@@ -134,8 +134,11 @@ class TaxSubTotal implements XmlSerializable
         ]);
 
         if ($this->percent !== null) {
+            // $writer->write([
+            //     Schema::CBC . 'Percent' => $this->percent
+            // ]);
             $writer->write([
-                Schema::CBC . 'Percent' => $this->percent
+                Schema::CBC . 'Percent' => number_format($this->percent, 2, '.', ''),
             ]);
         }
 

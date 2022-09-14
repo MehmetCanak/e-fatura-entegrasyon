@@ -70,15 +70,16 @@ class TaxScheme implements XmlSerializable
         $writer->write([
             Schema::CBC . 'ID' => $this->id
         ]);
-        if ($this->taxTypeCode !== null) {
-            $writer->write([
-                Schema::CBC . 'TaxTypeCode' => $this->taxTypeCode
-            ]);
-        }
         if ($this->name !== null) {
             $writer->write([
                 Schema::CBC . 'Name' => $this->name
             ]);
         }
+        if ($this->taxTypeCode !== null) {
+            $writer->write([
+                Schema::CBC . 'TaxTypeCode' => $this->taxTypeCode
+            ]);
+        }
+        
     }
 }

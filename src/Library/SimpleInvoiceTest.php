@@ -1,9 +1,35 @@
 <?php
 
-namespace web36\EFatura\Library;
+namespace App\Libraries\UblLibrary;
 
 use PHPUnit\Framework\TestCase;
-
+use web36\EFatura\BillingReference;
+use web36\EFatura\UBLExtension;
+use web36\EFatura\Country;
+use web36\EFatura\PartyIdentification;
+use web36\EFatura\Address;
+use web36\EFatura\SignatoryParty;
+use web36\EFatura\ExternalReference;
+use web36\EFatura\DigitalSignatureAttachment;
+use web36\EFatura\Signature;
+use web36\EFatura\TaxScheme;
+use web36\EFatura\PartyTaxScheme;
+use web36\EFatura\Contact;
+use web36\EFatura\Party;
+use web36\EFatura\AccountingSupplierParty;
+use web36\EFatura\AccountingCustomerParty;
+use web36\EFatura\TaxTotal;
+use web36\EFatura\TaxSubTotal;
+use web36\EFatura\TaxCategory;
+use web36\EFatura\Person;
+use web36\EFatura\LegalMonetaryTotal;
+use web36\EFatura\Item;
+use web36\EFatura\Price;
+use web36\EFatura\InvoiceLine;
+use web36\EFatura\Invoice;
+use web36\EFatura\UnitCode;
+use web36\EFatura\Generator;
+// use web36\EFatura\UBLExtensionContent;
 /**
  * Test an UBL2.1 invoice document
  */
@@ -14,80 +40,48 @@ class SimpleInvoiceTest extends TestCase
     
 
     /** @test */
-
-    public function test()
-    {
-        $invoice = new SimpleInvoice();
-        $invoice->setUBLVersionID('2.1');
-        $invoice->setCustomizationID('2.0');
-        $invoice->setProfileID('TEMEL FATURA');
-        $invoice->setID('FATURA-123456');
-        $invoice->setCopyIndicator(false);
-        $invoice->setUUID('1234567890123456789012345678901234567890123456789012345678901234');
-        $invoice->setIssueDate('2018-01-01');
-        $invoice->setInvoiceTypeCode('SATIS');
-        $invoice->setNote('Fatura Notu');
-        $invoice->setDocumentCurrencyCode('TRY');
-        $invoice->setLineCountNumeric(1);
-        
-        $invoice->setAccountingSupplierParty('1234567890', 'Firma Adı', 'Firma Adresi', 'Firma İlçesi', 'Firma İli', 'Firma Ülkesi', 'Firma Telefonu', 'Firma Fax', 'Firma E-Posta');
-        $invoice->setAccountingCustomerParty('1234567890', 'Müşteri Adı', 'Müşteri Adresi', 'Müşteri İlçesi', 'Müşteri İli', 'Müşteri Ülkesi', 'Müşteri Telefonu', 'Müşteri Fax', 'Müşteri E-Posta');
-        
-        $invoice->addInvoiceLine('1', 'Adet', 'Ürün Adı', 'Ürün Açıklaması', '1', '100', '18', '18', '118', '100', '18', '118');
-        
-        $invoice->setTaxTotal('18', '18', '18');
-        $invoice->setLegalMonetaryTotal('100', '18', '118');
-        
-        $xml = $invoice->getXML();
-        
-        $this->assertXmlStringEqualsXmlFile(__DIR__.'/SimpleInvoiceTest.xml', $xml);
-        
-        $this->assertTrue($invoice->validate($xml, $this->schema));
-        
-        return $xml;
-    }
     public function testIfXMLIsValid($record)
     {
-        $billingReference = (new \web36\EFatura\BillingReference());
+        $billingReference = (new BillingReference());
+        
 
         $extensions = [];
-        $extensions[] = (new \web36\EFatura\UBLExtension())
+        $extensions[] = (new UBLExtension())
             ->setUBLExtension('<n4:auto-generated_for_wildcard/>');
-        
-        $signature_country_name = (new \web36\EFatura\Country())
+        $signature_country_name = (new Country())
             ->setIdentificationCode(strval($record["Signature"]->SignatoryParty->PostalAddress->Country->IdentificationCode));
         
-        $signature_partyIdentification = (new \web36\EFatura\PartyIdentification())
+        $signature_partyIdentification = (new PartyIdentification())
             ->setID($record["Signature"]->SignatoryParty->PartyIdentification->ID)
             ->setUnitCode($record["Signature"]->SignatoryParty->PartyIdentification->schemeID);
 
-        $signature_address = (new \web36\EFatura\Address())
+        $signature_address = (new Address())
             ->setStreetName($record["Signature"]->SignatoryParty->PostalAddress->StreetName)
             ->setBuildingNumber($record["Signature"]->SignatoryParty->PostalAddress->BuildingNumber)
             ->setCityName($record["Signature"]->SignatoryParty->PostalAddress->CityName)
             ->setPostalZone($record["Signature"]->SignatoryParty->PostalAddress->PostalZone)
             ->setCountry($signature_country_name);
             
-        $signatoryParty = (new \web36\EFatura\SignatoryParty())
+        $signatoryParty = (new SignatoryParty())
             ->setPartyIdentification($signature_partyIdentification)
             ->setPostalAddress($signature_address);
 
-        $ExternalReference = (new \web36\EFatura\ExternalReference())
+        $ExternalReference = (new ExternalReference())
             ->setUri($record["Signature"]->DigitalSignatureAttachment->ExternalReference->URI);
 
-        $digitalSignatureAttachment = (new \web36\EFatura\DigitalSignatureAttachment())
+        $digitalSignatureAttachment = (new DigitalSignatureAttachment())
             ->setExternalReference($ExternalReference);
             
         $Signatures = [];
         
-        $Signatures[] = (new \web36\EFatura\Signature())
+        $Signatures[] = (new Signature())
             ->setId($record["Signature"]->ID)
             ->setSignatoryParty($signatoryParty)
             ->setDigitalSignatureAttachment($digitalSignatureAttachment);
-        $supplierCountry = (new \web36\EFatura\Country())
+        $supplierCountry = (new Country())
             ->setIdentificationCode($record["AccountingSupplierParty"]->Party->PostalAddress->Country->IdentificationCode);
 
-        $supplierAddress = (new \web36\EFatura\Address())
+        $supplierAddress = (new Address())
             ->setStreetName($record["AccountingSupplierParty"]->Party->PostalAddress->StreetName)
             ->setCityName($record["AccountingSupplierParty"]->Party->PostalAddress->CityName)
             ->setCitySubdivisionName($record["AccountingSupplierParty"]->Party->PostalAddress->CitySubdivisionName)
@@ -97,30 +91,30 @@ class SimpleInvoiceTest extends TestCase
             ->setCountry($supplierCountry);
 
         // // Supplier company node
-        // $supplierCompany = (new \web36\EFatura\Party())
+        // $supplierCompany = (new Party())
         //     ->setName('Supplier Company Name')
         //     ->setPhysicalLocation($supplierAddress)
         //     ->setPostalAddress($supplierAddress);
 
-        $supplier_partyIdentification = (new \web36\EFatura\PartyIdentification())
+        $supplier_partyIdentification = (new PartyIdentification())
             ->setID($record["AccountingSupplierParty"]->Party->PartyIdentification->ID)
             ->setUnitCode("VKN");//$record["AccountingSupplierParty"]->Party->PartyIdentification->schemeID);
 
         // Client contact node
-        $supplierTaxScheme = (new \web36\EFatura\TaxScheme())
+        $supplierTaxScheme = (new TaxScheme())
             ->setName($record["AccountingSupplierParty"]->Party->PartyTaxScheme->TaxScheme->Name);
 
-        $supplierPartyTaxScheme = (new \web36\EFatura\PartyTaxScheme())
+        $supplierPartyTaxScheme = (new PartyTaxScheme())
             ->setTaxScheme($supplierTaxScheme);
 
-        $supplierContact = (new \web36\EFatura\Contact())
+        $supplierContact = (new Contact())
             ->setElectronicMail($record["AccountingSupplierParty"]->Party->Contact->ElectronicMail)
             ->setTelephone($record["AccountingSupplierParty"]->Party->Contact->Telephone)
             ->setTelefax($record["AccountingSupplierParty"]->Party->Contact->Telefax);
             
 
         // Client company node
-        $supplierCompany = (new \web36\EFatura\Party())
+        $supplierCompany = (new Party())
             ->setWebsiteURI($record["AccountingSupplierParty"]->Party->WebsiteURI)
             ->setName($record["AccountingSupplierParty"]->Party->PartyName->Name)
             ->setPostalAddress($supplierAddress)
@@ -133,16 +127,16 @@ class SimpleInvoiceTest extends TestCase
 
     
         // Address country
-        $customerCountry = (new \web36\EFatura\Country())
+        $customerCountry = (new Country())
             ->setIdentificationCode($record["AccountingCustomerParty"]->Party->PostalAddress->Country->IdentificationCode);
 
         // Full address
         
-        $customer_partyIdentification = (new \web36\EFatura\PartyIdentification())
+        $customer_partyIdentification = (new PartyIdentification())
             ->setID($record["AccountingCustomerParty"]->Party->PartyIdentification->ID)
             ->setUnitCode("VKN");//$record["AccountingSupplierParty"]->Party->PartyIdentification->schemeID);
 
-        $customerAddress = (new \web36\EFatura\Address())
+        $customerAddress = (new Address())
             ->setStreetName($record["AccountingCustomerParty"]->Party->PostalAddress->StreetName)
             ->setCityName($record["AccountingCustomerParty"]->Party->PostalAddress->CityName)
             ->setCitySubdivisionName($record["AccountingCustomerParty"]->Party->PostalAddress->CitySubdivisionName)
@@ -152,30 +146,30 @@ class SimpleInvoiceTest extends TestCase
         // ->setBuildingName($record["AccountingSupplierParty"]->Party->PostalAddress->BuildingName)
 
         // // Supplier company node
-        // $supplierCompany = (new \web36\EFatura\Party())
+        // $supplierCompany = (new Party())
         //     ->setName('Supplier Company Name')
         //     ->setPhysicalLocation($supplierAddress)
         //     ->setPostalAddress($supplierAddress);
 
         
         // Client contact node
-        // $supplierTaxScheme = (new \web36\EFatura\TaxScheme())
+        // $supplierTaxScheme = (new TaxScheme())
         //     ->setName($record["AccountingCustomerParty"]->Party->PartyTaxScheme->TaxScheme->Name);
             
-        // $supplierPartyTaxScheme = (new \web36\EFatura\PartyTaxScheme())
+        // $supplierPartyTaxScheme = (new PartyTaxScheme())
         //     ->setTaxScheme($supplierTaxScheme);
         
-        $customerContact = (new \web36\EFatura\Contact())
+        $customerContact = (new Contact())
             ->setElectronicMail($record["AccountingCustomerParty"]->Party->Contact->ElectronicMail)
             ->setTelephone($record["AccountingCustomerParty"]->Party->Contact->Telephone)
             ->setTelefax($record["AccountingCustomerParty"]->Party->Contact->Telefax);
-        $customerPerson = (new \web36\EFatura\Person())
+        $customerPerson = (new Person())
             ->setFirstName($record["AccountingCustomerParty"]->Party->Person->FirstName)
             ->setFamilyName($record["AccountingCustomerParty"]->Party->Person->FamilyName);
  
     
         
-        $customerCompany = (new \web36\EFatura\Party())
+        $customerCompany = (new Party())
             ->setWebsiteURI($record["AccountingCustomerParty"]->Party->WebsiteURI)
             ->setPartyIdentification($customer_partyIdentification)
             ->setPostalAddress($customerAddress)
@@ -185,7 +179,7 @@ class SimpleInvoiceTest extends TestCase
             
 
  // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------       
-        $legalMonetaryTotal = (new \web36\EFatura\LegalMonetaryTotal())
+        $legalMonetaryTotal = (new LegalMonetaryTotal())
         ->setLineExtensionAmount($record["LegalMonetaryTotal"]->LineExtensionAmount)
         ->setTaxExclusiveAmount($record["LegalMonetaryTotal"]->TaxExclusiveAmount)
         ->setTaxInclusiveAmount($record["LegalMonetaryTotal"]->TaxInclusiveAmount)
@@ -195,20 +189,20 @@ class SimpleInvoiceTest extends TestCase
 
 
         // Tax scheme
-        $taxScheme = (new \web36\EFatura\TaxScheme())
+        $taxScheme = (new TaxScheme())
             ->setTaxTypeCode($record["TaxTotal"]->TaxSubtotal->TaxCategory->TaxScheme->TaxTypeCode)
             ->setName($record["TaxTotal"]->TaxSubtotal->TaxCategory->TaxScheme->Name);
 
-        $taxCategory = (new \web36\EFatura\TaxCategory())
+        $taxCategory = (new TaxCategory())
             ->setTaxScheme($taxScheme);
 
-        $taxSubTotal = (new \web36\EFatura\TaxSubTotal())
+        $taxSubTotal = (new TaxSubTotal())
             ->setTaxableAmount($record["TaxTotal"]->TaxSubtotal->TaxableAmount)
             ->setTaxAmount($record["TaxTotal"]->TaxSubtotal->TaxAmount)
             ->setTaxCategory($taxCategory);
 
             //     dd($taxSubTotal);
-        $taxTotal = (new \web36\EFatura\TaxTotal())
+        $taxTotal = (new TaxTotal())
             ->setTaxAmount($record["TaxTotal"]->TaxAmount)
             ->addTaxSubTotal($taxSubTotal);
 
@@ -217,29 +211,29 @@ class SimpleInvoiceTest extends TestCase
         for($i = 0; $i < count($record["InvoiceLine"]->InvoiceLine); ++$i)
         {
             // Product
-            $productItem = (new \web36\EFatura\Item())
+            $productItem = (new Item())
                 ->setName(($record["InvoiceLine"]->InvoiceLine[$i]->Item->Name));
             // Price
-            $price = (new \web36\EFatura\Price())
-                ->setUnitCode(\web36\EFatura\UnitCode::UNIT)
+            $price = (new Price())
+                ->setUnitCode(UnitCode::UNIT)
                 ->setPriceAmount($record["InvoiceLine"]->InvoiceLine[$i]->Price->PriceAmount);
 
-            $taxScheme = (new \web36\EFatura\TaxScheme())
+            $taxScheme = (new TaxScheme())
                 ->setTaxTypeCode($record["InvoiceLine"]->InvoiceLine[$i]->TaxTotal->TaxSubtotal->TaxCategory->TaxScheme->TaxTypeCode)
                 ->setName($record["InvoiceLine"]->InvoiceLine[$i]->TaxTotal->TaxSubtotal->TaxCategory->TaxScheme->Name);
 
-            $taxCategory = (new \web36\EFatura\TaxCategory())
+            $taxCategory = (new TaxCategory())
                 ->setTaxScheme($taxScheme);
 
-            $taxSubTotal = (new \web36\EFatura\TaxSubTotal())
+            $taxSubTotal = (new TaxSubTotal())
                 ->setTaxableAmount($record["InvoiceLine"]->InvoiceLine[$i]->TaxTotal->TaxSubtotal->TaxableAmount)
                 ->setTaxAmount($record["InvoiceLine"]->InvoiceLine[$i]->TaxTotal->TaxSubtotal->TaxAmount)
                 ->setTaxCategory($taxCategory);
 
-            $taxTotal_invoiceLine = (new \web36\EFatura\TaxTotal())
+            $taxTotal_invoiceLine = (new TaxTotal())
                 ->setTaxAmount($record["InvoiceLine"]->InvoiceLine[$i]->TaxTotal->TaxAmount)
                 ->addTaxSubTotal($taxSubTotal);
-            $invoiceLines[] = (new \web36\EFatura\InvoiceLine())
+            $invoiceLines[] = (new InvoiceLine())
                 ->setId($record["InvoiceLine"]->InvoiceLine[$i]->ID)
                 ->setInvoicedQuantity($record["InvoiceLine"]->InvoiceLine[$i]->Price->PriceAmount)
                 ->setUnitCode($record["InvoiceLine"]->InvoiceLine[$i]->InvoicedQuantity->code)
@@ -249,19 +243,19 @@ class SimpleInvoiceTest extends TestCase
                 ->setTaxTotal($taxTotal_invoiceLine);
         }
         if($record["InvoiceTypeCode"] == "IADE"){
-            $invoiceDocumentReference = (new \web36\EFatura\InvoiceDocumentReference())
+            $invoiceDocumentReference = (new InvoiceDocumentReference())
                 ->setID($record["BillingReference"]->InvoiceDocumentReference->ID)
                 ->setIssueDate($record["BillingReference"]->InvoiceDocumentReference->IssueDate);
                 // ->setDocumentTypeCode($record["InvoiceDocumentReference"]->DocumentTypeCode)
         
-            $billingReference = (new \web36\EFatura\BillingReference())
+            $billingReference = (new BillingReference())
                 ->setInvoiceDocumentReference($invoiceDocumentReference);
 
         }
 
 
 
-        $invoice = (new \web36\EFatura\Invoice())
+        $invoice = (new Invoice())
             ->setUBLVersionID($record["UBLVersionID"])
             ->setCustomizationID($record["CustomizationID"])
             ->setId($record["ID"])
@@ -277,38 +271,30 @@ class SimpleInvoiceTest extends TestCase
             ->setSignatures($Signatures)
             ->setAccountingSupplierParty($supplierCompany)
             ->setAccountingCustomerParty($customerCompany)
-            ->setSupplierAssignedAccountID('10001')
+            // ->setSupplierAssignedAccountID('10001')
             ->setInvoiceLines($invoiceLines)
             ->setLegalMonetaryTotal($legalMonetaryTotal)
             ->setBillingReference($billingReference)
             ->setTaxTotal($taxTotal);
+            $testPath = app_path("Libraries/UblLibrary/ubl/".'temel'.'.xml');
+
 
         // Test created object
-        // Use \web36\EFatura\Generator to generate an XML string
-        $generator = new \web36\EFatura\Generator();
+        // Use Generator to generate an XML string
+        $generator = new Generator();
         $outputXMLString = $generator->invoice($invoice);
 
-        // dd($outputXMLString);
-        // dd(152,$outputXMLString);
-        // dd($outputXMLString);
         $dom = new \DOMDocument("1.0", "utf-8");
         $dom->loadXML($outputXMLString);
         $dom->encoding = "utf-8";
-        $fileName = "test_xml/".$record["UUID"].'.xml';
-        // $dom->save('./SimpleInvoiceTest3.xml');
-        $dom->save($fileName);
-        // $path = public_path('ubl/xml/general.xslt');
-
-        dd($this->isValid($fileName));
+        $path = app_path("Libraries/UblLibrary/TestXML/".$record["UUID"].'.xml');
+        $dom->save($path);
         $schema = new \DOMDocument();
-        $schema->load(public_path($fileName));
-        dd($schema);
-        
-        dd(152,$schema->schemaValidate(public_path('ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd')));
-        
-        // $xslt = new \XSLTProcessor();
+        $schema->load($path);
 
-        // Validate the XML
+
+        $is_valid = $this->isValid($path);
+        dd("987, is valid =  ",$is_valid);
         $xsd = new \XMLSchema();
         $xsd->addDocument($schema);
         $xsd->validate($dom);
@@ -332,17 +318,11 @@ class SimpleInvoiceTest extends TestCase
     // Workaround for prior libxml versions, e.g. 2.6.32.
     public function isValid($tempFile)
     {
-
- 
         $tempDom = new \DOMDocument();
         $tempDom->load($tempFile);
-
-
-        // if (is_file($tempFile))
-        // {
-        //     unlink($tempFile);
-        // }
         $xsd_path = public_path('ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd');
+
+
         return $tempDom->schemaValidate($xsd_path);
     }
     

@@ -673,6 +673,11 @@ class Invoice implements XmlSerializable
                 Schema::CBC . 'DueDate' => $this->dueDate->format('Y-m-d')
             ]);
         }
+        // if ($this->billingReference !== null) {
+        //     $writer->write([
+        //         Schema::CAC . 'BillingReference' => $this->billingReference
+        //     ]);
+        // }
         foreach ($this->signatures as $Signature) {
             $writer->write([
                 Schema::CAC . 'Signature' => $Signature
@@ -783,11 +788,6 @@ class Invoice implements XmlSerializable
             Schema::CAC . 'LegalMonetaryTotal' => $this->legalMonetaryTotal
         ]);
         
-        if ($this->billingReference !== null) {
-            $writer->write([
-                Schema::CAC . 'BillingReference' => $this->billingReference
-            ]);
-        }
         
         foreach ($this->invoiceLines as $invoiceLine) {
             $writer->write([

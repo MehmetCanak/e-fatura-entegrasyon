@@ -198,6 +198,11 @@ class Party implements XmlSerializable
      */
     public function xmlSerialize(Writer $writer)
     {
+        if ($this->websiteURI !== null) {
+            $writer->write([
+                Schema::CBC . 'WebsiteURI' => $this->websiteURI
+            ]);
+        }
         if ($this->partyIdentificationId !== null) {
             $writer->write([
                 Schema::CAC . 'PartyIdentification' => [
@@ -247,11 +252,6 @@ class Party implements XmlSerializable
        if($this->person !== null){
             $writer->write([
                 Schema::CAC . 'Person' => $this->person
-            ]);
-        }
-        if ($this->websiteURI !== null) {
-            $writer->write([
-                Schema::CBC . 'WebsiteURI' => $this->websiteURI
             ]);
         }
         
