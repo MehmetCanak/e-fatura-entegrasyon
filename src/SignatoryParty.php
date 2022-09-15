@@ -87,21 +87,27 @@ class SignatoryParty implements XmlSerializable
         return $this;
     }
 
-    public function xmlSerialize(Writer $writer)
+    public function validate()
     {
-        if ($this->partyIdentification !== null) { 
-            $writer->write([
-                Schema::CAC . 'PartyIdentification' =>  $this->partyIdentification,
-                Schema::CAC . 'PostalAddress' =>  $this->postalAddress,
-            ]);
+        if ($this->partyIdentification === null) {
+            throw new InvalidArgumentException('VKN veya TCKN numarası boş olamaz');
+        }
+        if ($this->postalAddress === null) {
+            throw new InvalidArgumentException('Adres bilgisi boş olamaz');
         }
 
     }
 
-    // public function validate()
-    // {
-    //     if (!$this->partyIdentification) {
-    //         throw new InvalidArgumentException('SignatoryParty must have a PartyIdentification');
-    //     }
-    // }
+    public function xmlSerialize(Writer $writer)
+    {
+        $this->validate();
+
+        $writer->write([
+            Schema::CAC . 'PartyIdentification' =>  $this->partyIdentification,
+            Schema::CAC . 'PostalAddress' =>  $this->postalAddress,
+        ]);
+
+
+    }
+
 }

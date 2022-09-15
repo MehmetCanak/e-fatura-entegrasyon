@@ -77,7 +77,7 @@ class PartyTaxScheme implements XmlSerializable
     public function validate()
     {
         if ($this->taxScheme === null) {
-            throw new InvalidArgumentException('Missing TaxScheme');
+            throw new InvalidArgumentException('TaxScheme boş olamaz');
         }
     }
 

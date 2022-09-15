@@ -24,6 +24,13 @@ class ExternalReference implements XmlSerializable
         return $this;
     }
 
+    public function validate(): void
+    {
+        if (is_null($this->uri)) {
+            throw new InvalidArgumentException('Externel uri boş olamaz');
+        }
+    }
+
     /**
      * The xmlSerialize method is called during xml writing.
      *

@@ -8,6 +8,7 @@ use Sabre\Xml\XmlSerializable;
 class Country implements XmlSerializable
 {
     private $identificationCode;
+    private $name;
 
     /**
      * @return mixed
@@ -27,17 +28,46 @@ class Country implements XmlSerializable
         return $this;
     }
 
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     * @return Country
+     */
+
+    public function setName(?string $name): Country
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+
     /**
      * The xmlSerialize method is called during xml writing.
      *
      * @param Writer $writer
      * @return void
      */
+
+     public function  validate(){
+         if($this->name == null){
+             throw new \Exception('Ülke adı boş olamaz');
+         }
+     }
+    
     public function xmlSerialize(Writer $writer)
     {
         $writer->write([
             // Schema::CBC . 'IdentificationCode' => $this->identificationCode,
-            Schema::CBC . 'Name' => $this->identificationCode,
+            Schema::CBC . 'Name' => $this->name,
         ]);
+        if($this->identificationCode !== null){
+            $writer->write([
+                Schema::CBC . 'IdentificationCode' => $this->identificationCode,
+            ]);
+        }
     }
 }

@@ -29,6 +29,12 @@ class DigitalSignatureAttachment implements XmlSerializable
         $this->externalReference = $externalReference;
         return $this;
     }
+    public function validate(): void
+    {
+        if (is_null($this->externalReference)) {
+            throw new InvalidArgumentException('externalReference boş olamaz');
+        }
+    }
 
     public function xmlSerialize(Writer $writer)
     {

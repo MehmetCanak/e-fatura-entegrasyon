@@ -11,8 +11,7 @@ class PartyIdentification implements XmlSerializable
 {
 
     private $id ;
-    // private $schemeID ;
-    private $unitCode = 'VKN';
+    private $schemeID = '';
     
 
     public function getId(): ?string
@@ -26,52 +25,36 @@ class PartyIdentification implements XmlSerializable
         return $this;
     }
 
-    // public function getSchemeID(): ?string
-    // {
-    //     return $this->schemeID;
-    // }
-
-
-    // public function setSchemeID(?string $schemeID): PartyIdentification
-    // {
-    //     $this->schemeID = $schemeID;
-    //     return $this;
-    // }
-    public function getUnitCode(): ?string
+    public function getSchemeID(): ?string
     {
-        return $this->unitCode;
+        return $this->schemeID;
     }
 
 
-    public function setUnitCode(?string $unitCode): PartyIdentification
+    public function setSchemeID(?string $schemeID): PartyIdentification
     {
-        $this->unitCode = $unitCode;
+        $this->schemeID = $schemeID;
         return $this;
     }
     public function validate()
     {
         if ($this->id === null) {
-            throw new InvalidArgumentException('Missing id');
+            throw new InvalidArgumentException('VKN veya TCKN numarası boş olamaz');
+        }
+        if($this->schemeID == null){
+            throw new InvalidArgumentException('VKN veya TCKN schemeID boş olamaz');
         }
     }
 
     public function xmlSerialize(Writer $writer)
     {
-        // $writer->write([
-        //     [
-        //         'name' => Schema::CBC . 'ID',
-        //         'value' => $this->id ,//number_format($this->id, 2, '.', ''),
-        //         'attributes' => [
-        //             'schemeID' => $this->schemeID
-        //         ]
-        //     ]
-        // ]);
+
         $writer->write([
             [
                 'name' => Schema::CBC . 'ID',
-                'value' => $this->id ,//number_format($this->id, 2, '.', ''),
+                'value' => $this->id ,
                 'attributes' => [
-                    'schemeID' => $this->unitCode
+                    'schemeID' => $this->schemeID
                 ]
             ]
         ]);

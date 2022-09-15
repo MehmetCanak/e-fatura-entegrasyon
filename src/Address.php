@@ -52,7 +52,6 @@ class Address implements XmlSerializable
     }
 
     /**
-    /**
      * @return string
      */
     public function getBuildingNumber(): ?string
