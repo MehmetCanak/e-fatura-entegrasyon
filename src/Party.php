@@ -13,6 +13,7 @@ class Party implements XmlSerializable
     private $physicalLocation;
     private $contact;
     private $partyTaxScheme;
+    private $partyName;
     private $legalEntity;
     private $websiteURI;
     private $partyIdentification;
@@ -137,7 +138,7 @@ class Party implements XmlSerializable
      * @param PartyTaxScheme $partyTaxScheme
      * @return Party
      */
-    public function setPartyTaxScheme(PartyTaxScheme $partyTaxScheme)
+    public function setPartyTaxScheme(?PartyTaxScheme $partyTaxScheme)
     {
         $this->partyTaxScheme = $partyTaxScheme;
         return $this;
@@ -191,6 +192,26 @@ class Party implements XmlSerializable
 
 
     /**
+     * @param PartyName  $partyName 
+     * @return Party
+     */
+
+    public function setPartyName (?PartyName $partyName): Party
+    {
+        $this->partyName  = $partyName ;
+        return $this;
+    }
+
+    /**
+     * @return PartyName
+     */
+    public function getPartyName(): ?PartyName 
+    {
+        return $this->partyName ;
+    }
+
+
+    /**
      * The xmlSerialize method is called during xml writing.
      *
      * @param Writer $writer
@@ -217,9 +238,11 @@ class Party implements XmlSerializable
             ]);
         }
         $writer->write([
-            Schema::CAC . 'PartyName' => [
-                Schema::CBC . 'Name' => $this->name
-            ],
+            Schema::CAC . 'PartyName' => $this->partyName,
+
+            // Schema::CAC . 'PartyName' => [
+            //     Schema::CBC . 'Name' => $this->name
+            // ],
             Schema::CAC . 'PostalAddress' => $this->postalAddress
         ]);
         if ($this->partyTaxScheme !== null) {

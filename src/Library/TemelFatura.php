@@ -16,10 +16,9 @@ use web36\EFatura\DigitalSignatureAttachment;
 use web36\EFatura\Signature;
 use web36\EFatura\TaxScheme;
 use web36\EFatura\PartyTaxScheme;
+use web36\EFatura\PartyName;
 use web36\EFatura\Contact;
 use web36\EFatura\Party;
-use web36\EFatura\AccountingSupplierParty;
-use web36\EFatura\AccountingCustomerParty;
 use web36\EFatura\TaxTotal;
 use web36\EFatura\TaxSubTotal;
 use web36\EFatura\TaxCategory;
@@ -48,6 +47,7 @@ class TemelFatura{
     private $LineCountNumeric;
     private $Signatures = [];
     private $AccountingSupplierParty;
+    private $AccountingCustomerParty;
 
     public function __construct($record)
     {
@@ -65,6 +65,7 @@ class TemelFatura{
         $this->setLineCountNumeric($record['LineCountNumeric']);
         $this->setSignatures($record['Signature']);
         $this->setAccountingSupplierParty($record['AccountingSupplierParty']);
+        $this->setAccountingCustomerParty($record['AccountingCustomerParty']);
 
 
     }
@@ -171,33 +172,33 @@ class TemelFatura{
         return (new Address())
             ->setStreetName(isset($record['StreetName']) ? $record['StreetName'] : null)
             ->setBuildingNumber(isset($record['BuildingNumber']) ? $record['BuildingNumber'] : null)
-            ->setCitySubdivisionName(isset($record['CitySubdivisionName']) ? $record['CitySubdivisionName'] : custom_abort( $type. 'İlçe Adı Boş Olamaz'))
-            ->setCityName(isset($record['CityName']) ? $record['CityName'] : custom_abort($type. ' İl Adı Boş Olamaz'))
+            ->setCitySubdivisionName(isset($record['CitySubdivisionName']) ? $record['CitySubdivisionName'] : custom_abort( $type. 'ilçe adi Bos Olamaz'))
+            ->setCityName(isset($record['CityName']) ? $record['CityName'] : custom_abort($type. ' il adi Bos Olamaz'))
             ->setPostalZone(isset($record['PostalZone']) ? $record['PostalZone'] : null)
             ->setAdditionalStreetName(isset($record['AdditionalStreetName']) ? $record['AdditionalStreetName'] : null)
             ->setCountry((new Country())
-                ->setName(isset($record['Country']['Name']) ? $record['Country']['Name'] : custom_abort($type. ' Ülke Adı Boş Olamaz')) 
+                ->setName(isset($record['Country']['Name']) ? $record['Country']['Name'] : custom_abort($type. ' ulke adi Bos Olamaz')) 
                 ->setIdentificationCode(isset($record['Country']['IdentificationCode']) ? $record['Country']['IdentificationCode'] : null) 
             );
     }
 
     public function getPartyIdentification($record, $type){
         return (new PartyIdentification())
-            ->setID(isset($record['ID']) ? $record['ID'] : custom_abort($type. ' Vergi Numarası Boş Olamaz'))
-            ->setSchemeID(isset($record['SchemeID']) ? $record['SchemeID'] : custom_abort($type. ' Vergi Numarası SchemeID Boş Olamaz'));
+            ->setID(isset($record['ID']) ? $record['ID'] : custom_abort($type. ' Vergi Numarası Bos Olamaz'))
+            ->setSchemeID(isset($record['SchemeID']) ? $record['SchemeID'] : custom_abort($type. ' Vergi Numarası SchemeID Bos Olamaz'));
     }
     public function getDigitalSignatureAttachment($record){
         return (new DigitalSignatureAttachment())
             ->setExternalReference((new ExternalReference())
-                ->setURI(isset($record['URI']) ? $record['URI'] : custom_abort('URI Boş Olamaz'))
+                ->setURI(isset($record['URI']) ? $record['URI'] : custom_abort('URI Bos Olamaz'))
             );
     }
 
     public function setSignatures($Signature){
 
-        if(!isset($Signature['SignatoryParty']['PartyIdentification'])) custom_abort('Signature'. ' SignatoryParty PartyIdentification Boş Olamaz');
-        if(!isset($Signature['SignatoryParty']['PostalAddress'])) custom_abort('Signature'. ' SignatoryParty PostalAddress Boş Olamaz');
-        if(!isset($Signature['DigitalSignatureAttachment']['ExternalReference']['URI'])) custom_abort('Signature'. ' DigitalSignatureAttachment ExternalReference URI Boş Olamaz');
+        if(!isset($Signature['SignatoryParty']['PartyIdentification'])) custom_abort('Signature'. ' SignatoryParty PartyIdentification Bos Olamaz');
+        if(!isset($Signature['SignatoryParty']['PostalAddress'])) custom_abort('Signature'. ' SignatoryParty PostalAddress Bos Olamaz');
+        if(!isset($Signature['DigitalSignatureAttachment']['ExternalReference']['URI'])) custom_abort('Signature'. ' DigitalSignatureAttachment ExternalReference URI Bos Olamaz');
 
         $signature_partyIdentification = $this->getPartyIdentification($Signature['SignatoryParty']['PartyIdentification'], 'Signature');
         $signature_address = $this->getAddress($Signature['SignatoryParty']['PostalAddress'], 'Signature');
@@ -218,39 +219,84 @@ class TemelFatura{
     public function getSignatures(){
         return $this->Signatures;
     }
+
+    public function getPartyTaxScheme( $record, $type){
+        return (new PartyTaxScheme())
+            ->setTaxScheme((new TaxScheme())
+                ->setName(isset($record['TaxScheme']['Name']) ? $record['TaxScheme']['Name'] : null)
+            );
+    }
+
+    public function getContact($record, $type){
+        return (new Contact())
+            ->setTelephone(isset($record['Telephone']) ? $record['Telephone'] : null)
+            ->setTelefax(isset($record['Telefax']) ? $record['Telefax'] : null)
+            ->setElectronicMail(isset($record['ElectronicMail']) ? $record['ElectronicMail'] : null);
+    }
+    public function getPartyName($record, $type){
+        return (new PartyName())
+            ->setName(isset($record['Name']) ? $record['Name'] : null);
+    }
     public function setAccountingSupplierParty($AccountingSupplierParty){
 
-        if(!isset($AccountingSupplierParty['Party'])) custom_abort('AccountingSupplierParty'. ' Party Boş Olamaz');
-        if(!isset($AccountingSupplierParty['Party']['PartyIdentification'])) custom_abort('AccountingSupplierParty'. ' Party PartyIdentification Boş Olamaz');
-        // if(!isset($AccountingSupplierParty['Party']['PartyName'])) custom_abort('AccountingSupplierParty'. ' Party PartyName Boş Olamaz');
-        if(!isset($AccountingSupplierParty['Party']['PostalAddress'])) custom_abort('AccountingSupplierParty'. ' Party PostalAddress Boş Olamaz');
-        
+        if(!isset($AccountingSupplierParty['Party'])) custom_abort('AccountingSupplierParty'. ' Party Bos Olamaz');
+        if(!isset($AccountingSupplierParty['Party']['PartyIdentification'])) custom_abort('AccountingSupplierParty'. ' Party PartyIdentification Bos Olamaz');
+        // if(!isset($AccountingSupplierParty['Party']['PartyName'])) custom_abort('AccountingSupplierParty'. ' Party PartyName Bos Olamaz');
+        if(!isset($AccountingSupplierParty['Party']['PostalAddress'])) custom_abort('AccountingSupplierParty'. ' Party PostalAddress Bos Olamaz');
 
         $website = isset($AccountingSupplierParty['Party']['WebsiteURI']) ? $AccountingSupplierParty['Party']['WebsiteURI'] : null;
         $partyIdentification = $this->getPartyIdentification($AccountingSupplierParty['Party']['PartyIdentification'], 'AccountingSupplierParty');
-        $partyName = isset($AccountingSupplierParty['Party']['PartyName']) ? $AccountingSupplierParty['Party']['PartyName'] : null;
+        $partyName = isset($AccountingSupplierParty['Party']['PartyName']) ? $this->getPartyName($AccountingSupplierParty['Party']['PartyName'],"AccountingSupplierParty") : null;
+        $contact = isset($AccountingSupplierParty['Party']['Contact']) ? $this->getContact($AccountingSupplierParty['Party']['Contact'], 'AccountingSupplierParty') : null;
         $postalAddress = $this->getAddress($AccountingSupplierParty['Party']['PostalAddress'], 'AccountingSupplierParty');
-        $PartyTaxScheme = $this->getPartyTaxScheme($AccountingSupplierParty['Party']['PartyTaxScheme'], 'AccountingSupplierParty');
-        
-        dd($AccountingSupplierParty);
- 
-
-
-
-        $this->AccountingSupplierParty = (new Party())
+        $partyTaxScheme = $this->getPartyTaxScheme($AccountingSupplierParty['Party']['PartyTaxScheme'], 'AccountingSupplierParty');
+        $contact = isset($AccountingSupplierParty['Party']['Contact']) ? $this->getContact($AccountingSupplierParty['Party']['Contact'], 'AccountingSupplierParty') : null;
+        $party = (new Party())
             ->setWebsiteURI($website)
             ->setPartyIdentification($partyIdentification)
             ->setPartyName($partyName)
-            ->setPostalAddress($address)
+            ->setPostalAddress($postalAddress)
             ->setPartyTaxScheme($partyTaxScheme)
-            ->setPartyLegalEntity($partyLegalEntity)
             ->setContact($contact);
 
+        $this->AccountingSupplierParty = $party;
     }
     public function getAccountingSupplierParty(){
         return $this->AccountingSupplierParty;
     }
 
+
+    public function setAccountingCustomerParty($AccountingCustomerParty){
+
+        if(!isset($AccountingCustomerParty['Party'])) custom_abort('AccountingCustomerParty'. ' Party Bos Olamaz');
+        if(!isset($AccountingCustomerParty['Party']['PartyIdentification'])) custom_abort('AccountingCustomerParty'. ' Party PartyIdentification Bos Olamaz');
+        // if(!isset($AccountingCustomerParty['Party']['PartyName'])) custom_abort('AccountingCustomerParty'. ' Party PartyName Bos Olamaz');
+        if(!isset($AccountingCustomerParty['Party']['PostalAddress'])) custom_abort('AccountingCustomerParty'. ' Party PostalAddress Bos Olamaz');
+
+        $website = isset($AccountingCustomerParty['Party']['WebsiteURI']) ? $AccountingCustomerParty['Party']['WebsiteURI'] : null;
+        $partyIdentification = $this->getPartyIdentification($AccountingCustomerParty['Party']['PartyIdentification'], 'AccountingCustomerParty');
+        $partyName = isset($AccountingCustomerParty['Party']['PartyName']) ? $this->getPartyName($AccountingCustomerParty['Party']['PartyName'],"AccountingCustomerParty") : null;
+        $contact = isset($AccountingCustomerParty['Party']['Contact']) ? $this->getContact($AccountingCustomerParty['Party']['Contact'], 'AccountingCustomerParty') : null;
+        
+        $postalAddress = $this->getAddress($AccountingCustomerParty['Party']['PostalAddress'], 'AccountingCustomerParty');
+
+        // $partyTaxScheme = $this->getPartyTaxScheme($AccountingCustomerParty['Party']['PartyTaxScheme'], 'AccountingCustomerParty');
+        $partyTaxScheme = isset($AccountingCustomerParty['Party']['PartyTaxScheme']) ? $this->getPartyTaxScheme($AccountingCustomerParty['Party']['PartyTaxScheme'], 'AccountingCustomerParty') : null;
+
+        $party = (new Party())
+            ->setWebsiteURI($website)
+            ->setPartyIdentification($partyIdentification)
+            ->setPartyName($partyName)
+            ->setPostalAddress($postalAddress)
+            ->setPartyTaxScheme($partyTaxScheme)
+            ->setContact($contact);
+
+        $this->AccountingCustomerParty = $party;
+    }
+
+    public function getAccountingCustomerParty(){
+        return $this->AccountingCustomerParty;
+    }
 
 
 
@@ -271,6 +317,7 @@ class TemelFatura{
         $LineCountNumeric = $this->getLineCountNumeric();
         $Signatures = $this->getSignatures();
         $AccountingSupplierParty = $this->getAccountingSupplierParty();
+        $AccountingCustomerParty = $this->getAccountingCustomerParty();
 
 
         $invoice = (new Invoice())
@@ -286,7 +333,9 @@ class TemelFatura{
             ->setNote($Note)
             ->setDocumentCurrencyCode($DocumentCurrencyCode)
             ->setLineCountNumeric($LineCountNumeric)
-            ->setSignatures($Signatures);
+            ->setSignatures($Signatures)
+            ->setAccountingSupplierParty($AccountingSupplierParty)
+            ->setAccountingCustomerParty($AccountingCustomerParty);
 
        
         dd($invoice);
