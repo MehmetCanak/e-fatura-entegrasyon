@@ -59,6 +59,9 @@ class TaxTotal implements XmlSerializable
         if ($this->taxAmount === null) {
             throw new InvalidArgumentException('Missing taxtotal taxamount');
         }
+        if(count($this->taxSubTotals) === 0) {
+            throw new InvalidArgumentException('Missing taxtotal taxsubtotal');
+        }
     }
 
     /**

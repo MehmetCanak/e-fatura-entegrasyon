@@ -48,6 +48,7 @@ class TemelFatura{
     private $Signatures = [];
     private $AccountingSupplierParty;
     private $AccountingCustomerParty;
+    private $Taxtotal;
 
     public function __construct($record)
     {
@@ -66,6 +67,7 @@ class TemelFatura{
         $this->setSignatures($record['Signature']);
         $this->setAccountingSupplierParty($record['AccountingSupplierParty']);
         $this->setAccountingCustomerParty($record['AccountingCustomerParty']);
+        $this->setTaxtotal($record['Taxtotal']);
 
 
     }
@@ -296,6 +298,42 @@ class TemelFatura{
 
     public function getAccountingCustomerParty(){
         return $this->AccountingCustomerParty;
+    }
+    public function TaxCategory($record, $type){
+        return (new TaxCategory())
+            ->setName(isset($record['Name']) ? $record['Name'] : null)
+            ->setTaxExemptionReasonCode(isset($record['TaxExemptionReasonCode']) ? $record['TaxExemptionReasonCode'] : null)
+            ->setTaxExemptionReason(isset($record['TaxExemptionReason']) ? $record['TaxExemptionReason'] : null)
+            ->setTaxScheme(isset($record['TaxScheme']) ? $this->TaxScheme($record['TaxScheme'], $type) : null);
+    }
+    public function setTaxScheme($record, $type){
+        return (new TaxScheme())
+            ->setName(isset($record['Name']) ? $record['Name'] : null)
+            ->setTaxTypeCode(isset($record['TaxTypeCode']) ? $record['TaxTypeCode'] : null);
+    }
+
+    public function setTaxSubtotal($TaxSubtotal){
+        $taxableAmount = isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null;
+        $taxAmount = isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : custom_abort('TaxSubtotal'. ' TaxAmount Bos Olamaz');
+        $calculationSequenceNumeric = isset($TaxSubtotal['CalculationSequenceNumeric']) ? $TaxSubtotal['CalculationSequenceNumeric'] : null;
+        $percent = isset($TaxSubtotal['Percent']) ? $TaxSubtotal['Percent'] : null;
+
+        $TaxCategory = (new TaxCategory())
+            ->setTaxScheme(isset($TaxSubtotal['TaxCategory']['TaxScheme']) ? $this->setTaxScheme($TaxSubtotal['TaxCategory']['TaxScheme'], 'TaxSubtotal') : null);
+
+        $this->TaxSubtotal = (new TaxSubtotal())
+            ->setTaxableAmount(isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null)
+            ->setTaxAmount(isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : null)
+            ->setTaxCategory($TaxCategory);
+    }
+
+    public function setTaxtotal($TaxTotal){
+        
+        $taxAmount = isset($TaxTotal['TaxAmount']) ? $TaxTotal['TaxAmount'] : custom_abort('TaxTotal'. ' TaxAmount Bos Olamaz');
+        $taxSubtotal = isset($TaxTotal['TaxSubtotal']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotal']) : custom_abort('TaxTotal'. ' TaxSubtotal Bos Olamaz');
+        $this->TaxTotal = (new TaxTotal())
+            ->setTaxAmount($taxAmount)
+            ->setTaxSubtotal($taxSubtotal);
     }
 
 
