@@ -67,7 +67,7 @@ class TemelFatura{
         $this->setSignatures($record['Signature']);
         $this->setAccountingSupplierParty($record['AccountingSupplierParty']);
         $this->setAccountingCustomerParty($record['AccountingCustomerParty']);
-        $this->setTaxtotal($record['Taxtotal']);
+        $this->setTaxtotal($record['TaxTotal']);
 
 
     }
@@ -325,6 +325,7 @@ class TemelFatura{
             ->setTaxableAmount(isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null)
             ->setTaxAmount(isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : null)
             ->setTaxCategory($TaxCategory);
+        return $this->TaxSubtotal;
     }
 
     public function setTaxtotal($TaxTotal){
@@ -333,7 +334,11 @@ class TemelFatura{
         $taxSubtotal = isset($TaxTotal['TaxSubtotal']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotal']) : custom_abort('TaxTotal'. ' TaxSubtotal Bos Olamaz');
         $this->TaxTotal = (new TaxTotal())
             ->setTaxAmount($taxAmount)
-            ->setTaxSubtotal($taxSubtotal);
+            ->addTaxSubTotal($taxSubtotal);
+    }
+
+    public function getTaxtotal(){
+        return $this->TaxTotal;
     }
 
 
@@ -356,6 +361,7 @@ class TemelFatura{
         $Signatures = $this->getSignatures();
         $AccountingSupplierParty = $this->getAccountingSupplierParty();
         $AccountingCustomerParty = $this->getAccountingCustomerParty();
+        $TaxTotal = $this->getTaxtotal();
 
 
         $invoice = (new Invoice())
@@ -373,7 +379,8 @@ class TemelFatura{
             ->setLineCountNumeric($LineCountNumeric)
             ->setSignatures($Signatures)
             ->setAccountingSupplierParty($AccountingSupplierParty)
-            ->setAccountingCustomerParty($AccountingCustomerParty);
+            ->setAccountingCustomerParty($AccountingCustomerParty)
+            ->setTaxTotal($TaxTotal);
 
        
         dd($invoice);
