@@ -10,7 +10,9 @@ class LegalMonetaryTotal implements XmlSerializable
     private $lineExtensionAmount;
     private $taxExclusiveAmount;
     private $taxInclusiveAmount;
-    private $allowanceTotalAmount = 0;
+    private $allowanceTotalAmount;
+    private $chargeTotalAmount;
+    private $payableRoundingAmount;
     private $payableAmount;
 
     /**
@@ -84,6 +86,44 @@ class LegalMonetaryTotal implements XmlSerializable
         $this->allowanceTotalAmount = $allowanceTotalAmount;
         return $this;
     }
+    /**
+     * @return float
+     */
+    public function getChargeTotalAmount(): ?float
+    {
+        return $this->chargeTotalAmount;
+    }
+
+    /**
+     * @param float $chargeTotalAmount
+     * @return LegalMonetaryTotal
+     */
+    public function setChargeTotalAmount(?float $chargeTotalAmount): LegalMonetaryTotal
+    {
+        $this->chargeTotalAmount = $chargeTotalAmount;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+
+    public function getPayableRoundingAmount(): ?float
+    {
+        return $this->payableRoundingAmount;
+    }
+
+    /**
+     * @param float $payableRoundingAmount
+     * @return LegalMonetaryTotal
+     */
+
+    public function setPayableRoundingAmount(?float $payableRoundingAmount): LegalMonetaryTotal
+    {
+        $this->payableRoundingAmount = $payableRoundingAmount;
+        return $this;
+    }
+    
 
     /**
      * @return float
@@ -104,6 +144,24 @@ class LegalMonetaryTotal implements XmlSerializable
     }
 
     /**
+     * 
+     */
+    public function validate(){
+        if($this->getLineExtensionAmount() == null){
+            throw new InvalidArgumentException('lineExtensionAmount is required');
+        }
+        if($this->getTaxExclusiveAmount() == null){
+            throw new InvalidArgumentException('taxExclusiveAmount is required');
+        }
+        if($this->getTaxInclusiveAmount() == null){
+            throw new InvalidArgumentException('taxInclusiveAmount is required');
+        }
+        if($this->getPayableAmount() == null){
+            throw new InvalidArgumentException('payableAmount is required');
+        }
+    }
+
+    /**
      * The xmlSerialize method is called during xml writing.
      *
      * @param Writer $writer
@@ -111,6 +169,10 @@ class LegalMonetaryTotal implements XmlSerializable
      */
     public function xmlSerialize(Writer $writer)
     {
+        $this->validate();
+
+
+
         $writer->write([
             [
                 'name' => Schema::CBC . 'LineExtensionAmount',
@@ -135,22 +197,53 @@ class LegalMonetaryTotal implements XmlSerializable
                     'currencyID' => Generator::$currencyID
                 ]
 
-            ],
-            [
-                'name' => Schema::CBC . 'AllowanceTotalAmount',
-                'value' => number_format($this->allowanceTotalAmount, 2, '.', ''),
-                'attributes' => [
-                    'currencyID' => Generator::$currencyID
+            ]
+        ]);
+        if($this->allowanceTotalAmount !== null){
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'AllowanceTotalAmount',
+                    'value' => number_format($this->allowanceTotalAmount, 2, '.', ''),
+                    'attributes' => [
+                        'currencyID' => Generator::$currencyID
+                    ]
                 ]
+            ]);
+        }
+        if($this->chargeTotalAmount !== null){
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'ChargeTotalAmount',
+                    'value' => number_format($this->chargeTotalAmount, 2, '.', ''),
+                    'attributes' => [
+                        'currencyID' => Generator::$currencyID
+                    ]
+                ]
+            ]);
+        }
 
-            ],
+        if($this->payableRoundingAmount !== null){
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'PayableRoundingAmount',
+                    'value' => number_format($this->payableRoundingAmount, 2, '.', ''),
+                    'attributes' => [
+                        'currencyID' => Generator::$currencyID
+                    ]
+                ]
+            ]);
+        }
+
+        $writer->write([
             [
                 'name' => Schema::CBC . 'PayableAmount',
                 'value' => number_format($this->payableAmount, 2, '.', ''),
                 'attributes' => [
                     'currencyID' => Generator::$currencyID
                 ]
-            ],
+            ]
         ]);
+
+        
     }
 }

@@ -11,8 +11,9 @@ class TaxSubTotal implements XmlSerializable
 {
     private $taxableAmount;
     private $taxAmount;
-    private $taxCategory;
+    private $calculationSequenceNumeric;
     private $percent;
+    private $taxCategory;
 
     /**
      * @return mixed
@@ -85,6 +86,22 @@ class TaxSubTotal implements XmlSerializable
         $this->percent = $percent;
         return $this;
     }
+    public function getCalculationSequenceNumeric(): ?int
+    {
+        return $this->calculationSequenceNumeric;
+    }
+
+    /**
+     * @param int $calculationSequenceNumeric
+     * @return TaxSubTotal
+     */
+
+
+    public function setCalculationSequenceNumeric(?int $calculationSequenceNumeric): TaxSubTotal
+    {
+        $this->calculationSequenceNumeric = $calculationSequenceNumeric;
+        return $this;
+    }
 
     /**
      * The validate function that is called during xml writing to valid the data of the object.
@@ -132,6 +149,11 @@ class TaxSubTotal implements XmlSerializable
                 ]
             ]
         ]);
+        if ($this->calculationSequenceNumeric !== null) {
+            $writer->write([
+                Schema::CBC . 'CalculationSequenceNumeric' => $this->calculationSequenceNumeric
+            ]);
+        }
 
         if ($this->percent !== null) {
             // $writer->write([

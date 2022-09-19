@@ -49,6 +49,8 @@ class TemelFatura{
     private $AccountingSupplierParty;
     private $AccountingCustomerParty;
     private $Taxtotal;
+    private $LegalMonetaryTotal;
+    private $InvoiceLines = [];
 
     public function __construct($record)
     {
@@ -68,6 +70,9 @@ class TemelFatura{
         $this->setAccountingSupplierParty($record['AccountingSupplierParty']);
         $this->setAccountingCustomerParty($record['AccountingCustomerParty']);
         $this->setTaxtotal($record['TaxTotal']);
+        $this->setLegalMonetaryTotal($record['LegalMonetaryTotal']);
+        $this->setInvoiceLines($record['InvoiceLines']);
+
 
 
     }
@@ -174,33 +179,33 @@ class TemelFatura{
         return (new Address())
             ->setStreetName(isset($record['StreetName']) ? $record['StreetName'] : null)
             ->setBuildingNumber(isset($record['BuildingNumber']) ? $record['BuildingNumber'] : null)
-            ->setCitySubdivisionName(isset($record['CitySubdivisionName']) ? $record['CitySubdivisionName'] : custom_abort( $type. 'ilçe adi Bos Olamaz'))
-            ->setCityName(isset($record['CityName']) ? $record['CityName'] : custom_abort($type. ' il adi Bos Olamaz'))
+            ->setCitySubdivisionName(isset($record['CitySubdivisionName']) ? $record['CitySubdivisionName'] : custom_abort( $type. 'ilce adi bos olamaz.'))
+            ->setCityName(isset($record['CityName']) ? $record['CityName'] : custom_abort($type. ' il adi bos olamaz.'))
             ->setPostalZone(isset($record['PostalZone']) ? $record['PostalZone'] : null)
             ->setAdditionalStreetName(isset($record['AdditionalStreetName']) ? $record['AdditionalStreetName'] : null)
             ->setCountry((new Country())
-                ->setName(isset($record['Country']['Name']) ? $record['Country']['Name'] : custom_abort($type. ' ulke adi Bos Olamaz')) 
+                ->setName(isset($record['Country']['Name']) ? $record['Country']['Name'] : custom_abort($type. ' ulke adi bos olamaz.')) 
                 ->setIdentificationCode(isset($record['Country']['IdentificationCode']) ? $record['Country']['IdentificationCode'] : null) 
             );
     }
 
     public function getPartyIdentification($record, $type){
         return (new PartyIdentification())
-            ->setID(isset($record['ID']) ? $record['ID'] : custom_abort($type. ' Vergi Numarası Bos Olamaz'))
-            ->setSchemeID(isset($record['SchemeID']) ? $record['SchemeID'] : custom_abort($type. ' Vergi Numarası SchemeID Bos Olamaz'));
+            ->setID(isset($record['ID']) ? $record['ID'] : custom_abort($type. ' Vergi Numarası bos olamaz.'))
+            ->setSchemeID(isset($record['SchemeID']) ? $record['SchemeID'] : custom_abort($type. ' Vergi Numarası SchemeID bos olamaz.'));
     }
     public function getDigitalSignatureAttachment($record){
         return (new DigitalSignatureAttachment())
             ->setExternalReference((new ExternalReference())
-                ->setURI(isset($record['URI']) ? $record['URI'] : custom_abort('URI Bos Olamaz'))
+                ->setURI(isset($record['URI']) ? $record['URI'] : custom_abort('URI bos olamaz.'))
             );
     }
 
     public function setSignatures($Signature){
 
-        if(!isset($Signature['SignatoryParty']['PartyIdentification'])) custom_abort('Signature'. ' SignatoryParty PartyIdentification Bos Olamaz');
-        if(!isset($Signature['SignatoryParty']['PostalAddress'])) custom_abort('Signature'. ' SignatoryParty PostalAddress Bos Olamaz');
-        if(!isset($Signature['DigitalSignatureAttachment']['ExternalReference']['URI'])) custom_abort('Signature'. ' DigitalSignatureAttachment ExternalReference URI Bos Olamaz');
+        if(!isset($Signature['SignatoryParty']['PartyIdentification'])) custom_abort('Signature'. ' SignatoryParty PartyIdentification bos olamaz.');
+        if(!isset($Signature['SignatoryParty']['PostalAddress'])) custom_abort('Signature'. ' SignatoryParty PostalAddress bos olamaz.');
+        if(!isset($Signature['DigitalSignatureAttachment']['ExternalReference']['URI'])) custom_abort('Signature'. ' DigitalSignatureAttachment ExternalReference URI bos olamaz.');
 
         $signature_partyIdentification = $this->getPartyIdentification($Signature['SignatoryParty']['PartyIdentification'], 'Signature');
         $signature_address = $this->getAddress($Signature['SignatoryParty']['PostalAddress'], 'Signature');
@@ -241,10 +246,10 @@ class TemelFatura{
     }
     public function setAccountingSupplierParty($AccountingSupplierParty){
 
-        if(!isset($AccountingSupplierParty['Party'])) custom_abort('AccountingSupplierParty'. ' Party Bos Olamaz');
-        if(!isset($AccountingSupplierParty['Party']['PartyIdentification'])) custom_abort('AccountingSupplierParty'. ' Party PartyIdentification Bos Olamaz');
-        // if(!isset($AccountingSupplierParty['Party']['PartyName'])) custom_abort('AccountingSupplierParty'. ' Party PartyName Bos Olamaz');
-        if(!isset($AccountingSupplierParty['Party']['PostalAddress'])) custom_abort('AccountingSupplierParty'. ' Party PostalAddress Bos Olamaz');
+        if(!isset($AccountingSupplierParty['Party'])) custom_abort('AccountingSupplierParty'. ' Party bos olamaz.');
+        if(!isset($AccountingSupplierParty['Party']['PartyIdentification'])) custom_abort('AccountingSupplierParty'. ' Party PartyIdentification bos olamaz.');
+        // if(!isset($AccountingSupplierParty['Party']['PartyName'])) custom_abort('AccountingSupplierParty'. ' Party PartyName bos olamaz.');
+        if(!isset($AccountingSupplierParty['Party']['PostalAddress'])) custom_abort('AccountingSupplierParty'. ' Party PostalAddress bos olamaz.');
 
         $website = isset($AccountingSupplierParty['Party']['WebsiteURI']) ? $AccountingSupplierParty['Party']['WebsiteURI'] : null;
         $partyIdentification = $this->getPartyIdentification($AccountingSupplierParty['Party']['PartyIdentification'], 'AccountingSupplierParty');
@@ -270,10 +275,10 @@ class TemelFatura{
 
     public function setAccountingCustomerParty($AccountingCustomerParty){
 
-        if(!isset($AccountingCustomerParty['Party'])) custom_abort('AccountingCustomerParty'. ' Party Bos Olamaz');
-        if(!isset($AccountingCustomerParty['Party']['PartyIdentification'])) custom_abort('AccountingCustomerParty'. ' Party PartyIdentification Bos Olamaz');
-        // if(!isset($AccountingCustomerParty['Party']['PartyName'])) custom_abort('AccountingCustomerParty'. ' Party PartyName Bos Olamaz');
-        if(!isset($AccountingCustomerParty['Party']['PostalAddress'])) custom_abort('AccountingCustomerParty'. ' Party PostalAddress Bos Olamaz');
+        if(!isset($AccountingCustomerParty['Party'])) custom_abort('AccountingCustomerParty'. ' Party bos olamaz.');
+        if(!isset($AccountingCustomerParty['Party']['PartyIdentification'])) custom_abort('AccountingCustomerParty'. ' Party PartyIdentification bos olamaz.');
+        // if(!isset($AccountingCustomerParty['Party']['PartyName'])) custom_abort('AccountingCustomerParty'. ' Party PartyName bos olamaz.');
+        if(!isset($AccountingCustomerParty['Party']['PostalAddress'])) custom_abort('AccountingCustomerParty'. ' Party PostalAddress bos olamaz.');
 
         $website = isset($AccountingCustomerParty['Party']['WebsiteURI']) ? $AccountingCustomerParty['Party']['WebsiteURI'] : null;
         $partyIdentification = $this->getPartyIdentification($AccountingCustomerParty['Party']['PartyIdentification'], 'AccountingCustomerParty');
@@ -314,7 +319,7 @@ class TemelFatura{
 
     public function setTaxSubtotal($TaxSubtotal){
         $taxableAmount = isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null;
-        $taxAmount = isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : custom_abort('TaxSubtotal'. ' TaxAmount Bos Olamaz');
+        $taxAmount = isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : custom_abort('TaxSubtotal'. ' TaxAmount bos olamaz.');
         $calculationSequenceNumeric = isset($TaxSubtotal['CalculationSequenceNumeric']) ? $TaxSubtotal['CalculationSequenceNumeric'] : null;
         $percent = isset($TaxSubtotal['Percent']) ? $TaxSubtotal['Percent'] : null;
 
@@ -324,14 +329,16 @@ class TemelFatura{
         $this->TaxSubtotal = (new TaxSubtotal())
             ->setTaxableAmount(isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null)
             ->setTaxAmount(isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : null)
+            ->setCalculationSequenceNumeric(isset($TaxSubtotal['CalculationSequenceNumeric']) ? $TaxSubtotal['CalculationSequenceNumeric'] : null)
+            ->setPercent(isset($TaxSubtotal['Percent']) ? $TaxSubtotal['Percent'] : null)
             ->setTaxCategory($TaxCategory);
         return $this->TaxSubtotal;
     }
 
     public function setTaxtotal($TaxTotal){
         
-        $taxAmount = isset($TaxTotal['TaxAmount']) ? $TaxTotal['TaxAmount'] : custom_abort('TaxTotal'. ' TaxAmount Bos Olamaz');
-        $taxSubtotal = isset($TaxTotal['TaxSubtotal']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotal']) : custom_abort('TaxTotal'. ' TaxSubtotal Bos Olamaz');
+        $taxAmount = isset($TaxTotal['TaxAmount']) ? $TaxTotal['TaxAmount'] : custom_abort('TaxTotal'. ' TaxAmount bos olamaz.');
+        $taxSubtotal = isset($TaxTotal['TaxSubtotal']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotal']) : custom_abort('TaxTotal'. ' TaxSubtotal bos olamaz.');
         $this->TaxTotal = (new TaxTotal())
             ->setTaxAmount($taxAmount)
             ->addTaxSubTotal($taxSubtotal);
@@ -341,6 +348,98 @@ class TemelFatura{
         return $this->TaxTotal;
     }
 
+    public function setItem($Item){
+        $name = isset($Item['Name']) ? $Item['Name'] : custom_abort('Item'. ' Name bos olamaz.');
+        $description = isset($Item['Description']) ? $Item['Description'] : null;
+        $sellersItemIdentification = isset($Item['SellersItemIdentification']) ? $this->setSellersItemIdentification($Item['SellersItemIdentification']) : null;
+        $this->Item = (new Item())
+            ->setName($name)
+            ->setDescription($description);
+        return $this->Item;
+    }
+
+    public function setPrice($Price){
+        $priceAmount = isset($Price['PriceAmount']) ? $Price['PriceAmount'] : custom_abort('Price'. ' PriceAmount bos olamaz.');
+        $this->Price = (new Price())
+            ->setPriceAmount($priceAmount);
+        return $this->Price;
+    }
+
+    
+    public function setLegalMonetaryTotal($LegalMonetaryTotal){
+        $lineExtensionAmount = isset($LegalMonetaryTotal['LineExtensionAmount']) ? $LegalMonetaryTotal['LineExtensionAmount'] : custom_abort('LegalMonetaryTotal'. ' LineExtensionAmount bos olamaz.');
+        $taxExclusiveAmount = isset($LegalMonetaryTotal['TaxExclusiveAmount']) ? $LegalMonetaryTotal['TaxExclusiveAmount'] : custom_abort('LegalMonetaryTotal'. ' TaxExclusiveAmount bos olamaz.');
+        $taxInclusiveAmount = isset($LegalMonetaryTotal['TaxInclusiveAmount']) ? $LegalMonetaryTotal['TaxInclusiveAmount'] : custom_abort('LegalMonetaryTotal'. ' TaxInclusiveAmount bos olamaz.');
+        $allowanceTotalAmount = isset($LegalMonetaryTotal['AllowanceTotalAmount']) ? $LegalMonetaryTotal['AllowanceTotalAmount'] : null;
+        $chargeTotalAmount = isset($LegalMonetaryTotal['ChargeTotalAmount']) ? $LegalMonetaryTotal['ChargeTotalAmount'] : null;
+        $payableRoundingAmount = isset($LegalMonetaryTotal['PayableRoundingAmount']) ? $LegalMonetaryTotal['PayableRoundingAmount'] : null;
+        $payableAmount = isset($LegalMonetaryTotal['PayableAmount']) ? $LegalMonetaryTotal['PayableAmount'] : custom_abort('LegalMonetaryTotal'. ' PayableAmount bos olamaz.');
+
+        $this->LegalMonetaryTotal = (new LegalMonetaryTotal())
+            ->setLineExtensionAmount($lineExtensionAmount)
+            ->setTaxExclusiveAmount($taxExclusiveAmount)
+            ->setTaxInclusiveAmount($taxInclusiveAmount)
+            ->setAllowanceTotalAmount($allowanceTotalAmount)
+            ->setChargeTotalAmount($chargeTotalAmount)
+            ->setPayableRoundingAmount($payableRoundingAmount)
+            ->setPayableAmount($payableAmount);
+    }
+
+    public function getLegalMonetaryTotal(){
+        return $this->LegalMonetaryTotal;
+    }
+
+    public function setInvoiceLine($InvoiceLine){
+        
+        $id = isset($InvoiceLine['ID']) ? $InvoiceLine['ID'] : custom_abort('InvoiceLine'. ' ID bos olamaz.');
+        $unitCode =  isset($InvoiceLine['unitCode']) ? $InvoiceLine['unitCode'] : custom_abort('InvoiceLine'. ' InvoicedQuantity unitCode bos olamaz.');
+        $note = isset($InvoiceLine['Note']) ? $InvoiceLine['Note'] : null;
+        $invoicedQuantity = isset($InvoiceLine['InvoicedQuantity']) ? $InvoiceLine['InvoicedQuantity'] : custom_abort('InvoiceLine'. ' InvoicedQuantity bos olamaz.');
+        $lineExtensionAmount = isset($InvoiceLine['LineExtensionAmount']) ? $InvoiceLine['LineExtensionAmount'] : custom_abort('InvoiceLine'. ' LineExtensionAmount bos olamaz.');
+        $orderLineReference = isset($InvoiceLine['OrderLineReference']) ? $this->setOrderLineReference($InvoiceLine['OrderLineReference']) : null;
+        $despatchLineReference = isset($InvoiceLine['DespatchLineReference']) ? $this->setDespatchLineReference($InvoiceLine['DespatchLineReference']) : null;
+        $receiptLineReference = isset($InvoiceLine['ReceiptLineReference']) ? $this->setReceiptLineReference($InvoiceLine['ReceiptLineReference']) : null;
+        $delivery = isset($InvoiceLine['Delivery']) ? $this->setDelivery($InvoiceLine['Delivery']) : null;
+        $allowanceChange = isset($InvoiceLine['AllowanceCharge']) ? $this->setAllowanceCharge($InvoiceLine['AllowanceCharge']) : null;
+        $taxTotal = isset($InvoiceLine['TaxTotal']) ? $this->setTaxtotal($InvoiceLine['TaxTotal']) : null;
+        $withholdingTaxTotal = isset($InvoiceLine['WithholdingTaxTotal']) ? $this->setWithholdingTaxTotal($InvoiceLine['WithholdingTaxTotal']) : null;
+        $item = isset($InvoiceLine['Item']) ? $this->setItem($InvoiceLine['Item']) : custom_abort('InvoiceLine'. ' Item bos olamaz.');
+        $price = isset($InvoiceLine['Price']) ? $this->setPrice($InvoiceLine['Price']) : custom_abort('InvoiceLine'. ' Price bos olamaz.');
+        $subInvoiceLine = isset($InvoiceLine['SubInvoiceLine']) ? $this->setSubInvoiceLine($InvoiceLine['SubInvoiceLine']) : null;
+
+        $this->InvoiceLine = (new InvoiceLine())
+            ->setId($id)
+            ->setUnitCode($unitCode)
+            ->setNote($note)
+            ->setInvoicedQuantity($invoicedQuantity)
+            ->setLineExtensionAmount($lineExtensionAmount)
+            ->setOrderLineReference($orderLineReference)
+            ->setDespatchLineReference($despatchLineReference)
+            ->setReceiptLineReference($receiptLineReference)
+            ->setDelivery($delivery)
+            ->setAllowanceCharge($allowanceChange)
+            ->setTaxTotal($taxTotal)
+            ->setWithholdingTaxTotal($withholdingTaxTotal)
+            ->setItem($item)
+            ->setPrice($price)
+            ->setTaxTotal($taxTotal)
+            ->setSubInvoiceLine($subInvoiceLine);
+    }
+
+    public function getInvoiceLine(){
+        return $this->InvoiceLine;
+    }
+
+    public function setInvoiceLines($InvoiceLines){
+        foreach ($InvoiceLines as $InvoiceLine) {
+            $this->setInvoiceLine($InvoiceLine);
+            $this->InvoiceLines[] = $this->getInvoiceLine();
+        }
+    }
+
+    public function getInvoiceLines(){
+        return $this->InvoiceLines;
+    }
 
 
 
@@ -362,6 +461,8 @@ class TemelFatura{
         $AccountingSupplierParty = $this->getAccountingSupplierParty();
         $AccountingCustomerParty = $this->getAccountingCustomerParty();
         $TaxTotal = $this->getTaxtotal();
+        $LegalMonetaryTotal = $this->getLegalMonetaryTotal();
+        $InvoiceLines = $this->getInvoiceLines();
 
 
         $invoice = (new Invoice())
@@ -380,12 +481,35 @@ class TemelFatura{
             ->setSignatures($Signatures)
             ->setAccountingSupplierParty($AccountingSupplierParty)
             ->setAccountingCustomerParty($AccountingCustomerParty)
-            ->setTaxTotal($TaxTotal);
+            ->setTaxTotal($TaxTotal)
+            ->setLegalMonetaryTotal($LegalMonetaryTotal)
+            ->setInvoiceLines($InvoiceLines);
 
+        $generator = new Generator();
+        $outputXMLString = $generator->invoice($invoice);
+
+        $dom = new \DOMDocument("1.0", "utf-8");
+        $dom->loadXML($outputXMLString);
+        $dom->encoding = "utf-8";
+        $path = public_path($UUID.'.xml');
+        $dom->save($path);
+        $schema = new \DOMDocument();
+        $schema->load($path);
+
+
+        $is_valid = $this->isValid($path);
        
         dd($invoice);
 
 
+    }
+
+    public function isValid($tempFile)
+    {
+        $tempDom = new \DOMDocument();
+        $tempDom->load($tempFile);
+        $xsd_path = public_path('ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd');
+        return $tempDom->schemaValidate($xsd_path);
     }
 
 }

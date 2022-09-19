@@ -8,16 +8,21 @@ use Sabre\Xml\XmlSerializable;
 class InvoiceLine implements XmlSerializable
 {
     private $id;
+    private $unitCode;
+    private $note;
     private $invoicedQuantity;
     private $lineExtensionAmount;
-    private $unitCode = 'MON';
+    private $orderLineReference;
+    private $despatchLineReference;
+    private $receiptLineReference;
+    private $delivery;
+    private $allowanceCharge;
     private $taxTotal;
-    private $invoicePeriod;
-    private $note;
+    private $withholdingTaxTotal;
     private $item;
     private $price;
-    private $accountingCostCode;
-    private $accountingCost;
+    private $subInvoiceLine;
+
 
     /**
      * @return string
@@ -34,6 +39,42 @@ class InvoiceLine implements XmlSerializable
     public function setId(?string $id): InvoiceLine
     {
         $this->id = $id;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnitCode(): ?string
+    {
+        return $this->unitCode;
+    }
+
+    /**
+     * @param string $unitCode
+     * @return InvoiceLine
+     */
+    public function setUnitCode(?string $unitCode): InvoiceLine
+    {
+        $this->unitCode = $unitCode;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    /**
+     * @param string $note
+     * @return InvoiceLine
+     */
+    public function setNote(?string $note): InvoiceLine
+    {
+        $this->note = $note;
         return $this;
     }
 
@@ -73,6 +114,61 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
+    public function getOrderLineReference():?OrderLineReference
+    {
+        return $this->orderLineReference;
+    }
+
+    public function setOrderLineReference(?OrderLineReference $orderLineReference): InvoiceLine
+    {
+        $this->orderLineReference = $orderLineReference;
+        return $this;
+    }
+
+    public function getDespatchLineReference():?DespatchLineReference
+    {
+        return $this->despatchLineReference;
+    }
+
+    public function setDespatchLineReference(?DespatchLineReference $despatchLineReference): InvoiceLine
+    {
+        $this->despatchLineReference = $despatchLineReference;
+        return $this;
+    }
+
+    public function getReceiptLineReference():?ReceiptLineReference
+    {
+        return $this->receiptLineReference;
+    }
+
+    public function setReceiptLineReference(?ReceiptLineReference $receiptLineReference): InvoiceLine
+    {
+        $this->receiptLineReference = $receiptLineReference;
+        return $this;
+    }
+
+    public function getDelivery():?Delivery
+    {
+        return $this->delivery;
+    }
+
+    public function setDelivery(?Delivery $delivery): InvoiceLine
+    {
+        $this->delivery = $delivery;
+        return $this;
+    }
+
+    public function getAllowanceCharge():?AllowanceCharge
+    {
+        return $this->allowanceCharge;
+    }
+
+    public function setAllowanceCharge(?AllowanceCharge $allowanceCharge): InvoiceLine
+    {
+        $this->allowanceCharge = $allowanceCharge;
+        return $this;
+    }
+
     /**
      * @return TaxTotal
      */
@@ -91,41 +187,18 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getNote(): ?string
+    public function getWithholdingTaxTotal():?WithholdingTaxTotal
     {
-        return $this->note;
+        return $this->withholdingTaxTotal;
     }
 
-    /**
-     * @param string $note
-     * @return InvoiceLine
-     */
-    public function setNote(?string $note): InvoiceLine
+    public function setWithholdingTaxTotal(?WithholdingTaxTotal $withholdingTaxTotal): InvoiceLine
     {
-        $this->note = $note;
+        $this->withholdingTaxTotal = $withholdingTaxTotal;
         return $this;
     }
 
-    /**
-     * @return InvoicePeriod
-     */
-    public function getInvoicePeriod(): ?InvoicePeriod
-    {
-        return $this->invoicePeriod;
-    }
 
-    /**
-     * @param InvoicePeriod $invoicePeriod
-     * @return InvoiceLine
-     */
-    public function setInvoicePeriod(?InvoicePeriod $invoicePeriod)
-    {
-        $this->invoicePeriod = $invoicePeriod;
-        return $this;
-    }
 
     /**
      * @return Item
@@ -163,60 +236,39 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getUnitCode(): ?string
+    public function getSubInvoiceLine(): ?InvoiceLine
     {
-        return $this->unitCode;
+        return $this->subInvoiceLine;
     }
 
-    /**
-     * @param string $unitCode
-     * @return InvoiceLine
-     */
-    public function setUnitCode(?string $unitCode): InvoiceLine
+    public function setSubInvoiceLine(?InvoiceLine $subInvoiceLine): InvoiceLine
     {
-        $this->unitCode = $unitCode;
+        $this->subInvoiceLine = $subInvoiceLine;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getAccountingCostCode(): ?string
-    {
-        return $this->accountingCostCode;
-    }
 
-    /**
-     * @param string $accountingCostCode
-     * @return InvoiceLine
-     */
-    public function setAccountingCostCode(?string $accountingCostCode): InvoiceLine
-    {
-        $this->accountingCostCode = $accountingCostCode;
-        return $this;
+    public function validate(){
+        if($this->id == null){
+            throw new InvalidArgumentException('InvoiceLine id bos olamaz');
+        }
+        if($this->invoicedQuantity == null){
+            throw new InvalidArgumentException('InvoiceLine invoicedQuantity bos olamaz');
+        }
+        if($this->lineExtensionAmount == null){
+            throw new InvalidArgumentException('InvoiceLine lineExtensionAmount bos olamaz');
+        }
+        if($this->unitCode == null){
+            throw new InvalidArgumentException('InvoiceLine unitCode bos olamaz');
+        }
+        if($this->item == null){
+            throw new InvalidArgumentException('InvoiceLine item bos olamaz');
+        }
+        if($this->price == null){
+            throw new InvalidArgumentException('InvoiceLine price bos olamaz');
+        }
+   
     }
-
-    /**
-     * @return string
-     */
-    public function getAccountingCost(): ?string
-    {
-        return $this->accountingCost;
-    }
-
-    /**
-     * @param string $accountingCost
-     * @return InvoiceLine
-     */
-    public function setAccountingCost(?string $accountingCost): InvoiceLine
-    {
-        $this->accountingCost = $accountingCost;
-        return $this;
-    }
-
     /**
      * The xmlSerialize method is called during xml writing.
      * @param Writer $writer
@@ -224,6 +276,7 @@ class InvoiceLine implements XmlSerializable
      */
     public function xmlSerialize(Writer $writer)
     {
+        $this->validate();
         $writer->write([
             Schema::CBC . 'ID' => $this->id
         ]);
@@ -250,38 +303,59 @@ class InvoiceLine implements XmlSerializable
                 ]
             ]
         ]);
-        if ($this->accountingCostCode !== null) {
+        if($this->orderLineReference !== null){
             $writer->write([
-                Schema::CBC . 'AccountingCostCode' => $this->accountingCostCode
-            ]);
+                Schema::CAC . 'OrderLineReference' => $this->orderLineReference
+            ]); 
         }
-        if ($this->accountingCost !== null) {
+
+        if($this->despatchLineReference !== null){
             $writer->write([
-                Schema::CBC . 'AccountingCost' => $this->accountingCost
-            ]);
+                Schema::CAC . 'DespatchLineReference' => $this->despatchLineReference
+            ]); 
         }
-        if ($this->invoicePeriod !== null) {
+
+        if($this->receiptLineReference !== null){
             $writer->write([
-                Schema::CAC . 'InvoicePeriod' => $this->invoicePeriod
-            ]);
+                Schema::CAC . 'ReceiptLineReference' => $this->receiptLineReference
+            ]); 
         }
+
+        if($this->delivery !== null){
+            $writer->write([
+                Schema::CAC . 'Delivery' => $this->delivery
+            ]); 
+        }
+
+        if($this->allowanceCharge !== null){
+            $writer->write([
+                Schema::CAC . 'AllowanceCharge' => $this->allowanceCharge
+            ]); 
+        }
+
         if ($this->taxTotal !== null) {
             $writer->write([
                 Schema::CAC . 'TaxTotal' => $this->taxTotal
             ]);
+        } 
+        if($this->withholdingTaxTotal !== null){
+            $writer->write([
+                Schema::CAC . 'WithholdingTaxTotal' => $this->withholdingTaxTotal
+            ]); 
         }
         $writer->write([
             Schema::CAC . 'Item' => $this->item,
         ]);
 
-        if ($this->price !== null) {
+        $writer->write([
+            Schema::CAC . 'Price' => $this->price
+        ]);
+
+        if($this->subInvoiceLine !== null){
             $writer->write([
-                Schema::CAC . 'Price' => $this->price
-            ]);
-        } else {
-            $writer->write([
-                Schema::CAC . 'TaxScheme' => null,
-            ]);
+                Schema::CAC . 'SubInvoiceLine' => $this->subInvoiceLine
+            ]); 
         }
+
     }
 }
