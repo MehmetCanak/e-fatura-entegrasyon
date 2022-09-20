@@ -10,66 +10,59 @@ use InvalidArgumentException;
 
 class Invoice implements XmlSerializable
 {
-    private $signatures;
-    private $ProfileID;
     private $UBLExtensions;
     private $UBLVersionID = '2.1';
     private $customizationID = 'TR1.2';
-    private $UUID;
+    private $profileID;
     private $id;
-    private $lineCountNumeric;
     private $copyIndicator;
+    private $UUID;
     private $issueDate;
+    private $issueTime;
     private $invoiceTypeCode = InvoiceTypeCode::INVOICE;
     private $note;
-    private $taxPointDate;
-    private $dueDate;
-    private $paymentTerms;
+    private $documentCurrencyCode = 'TRY';
+    private $lineCountNumeric;
+    private $invoicePeriod;
+    private $orderReference;
+    private $billingReference;
+    private $contractDocumentReference;
+    private $additionalDocumentReference;
+    private $signatures;
     private $accountingSupplierParty;
     private $accountingCustomerParty;
-    private $supplierAssignedAccountID;
+    private $buyerReference;
+    private $delivery;
     private $paymentMeans;
+    private $paymentTerms;
+    private $allowanceCharges;
     private $taxTotal;
     private $legalMonetaryTotal;
     private $invoiceLines;
-    private $allowanceCharges;
-    private $additionalDocumentReference;
-    private $documentCurrencyCode = 'TRY';
-    private $buyerReference;
-    private $accountingCostCode;
-    private $invoicePeriod;
-    private $delivery;
-    private $orderReference;
-    private $contractDocumentReference;
-    private $billingReference;
+
 
     /**
-     * @return Signatures[]
+     * @return UBLExtensions
      */
-    public function getSignatures(): ?array
-    {
-        return $this->signatures;
-    }
-
-    /**
-     * @param Signature[] $Signatures
-     * @return Signature
-     */
-    public function setSignatures(array $Signatures): Invoice
-    {
-        $this->signatures = $Signatures;
-        return $this;
-    }
-
     public function getExtensions(): ?string
     {
         return $this->UBLExtensions;
     }
+
+    /**
+     * @param UBLExtensions $UBLExtensions
+     * @return Invoice
+     */
     public function setExtensions($UBLExtensions): Invoice
     {
         $this->UBLExtensions = $UBLExtensions;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+
     public function getUBLVersionID(): ?string
     {
         return $this->UBLVersionID;
@@ -80,57 +73,19 @@ class Invoice implements XmlSerializable
      * eg. '2.0', '2.1', '2.2', ...
      * @return Invoice
      */
+
     public function setUBLVersionID(?string $UBLVersionID): Invoice
     {
         $this->UBLVersionID = $UBLVersionID;
         return $this;
     }
 
-
-    public function getProfileID(): ?string
-    {
-        return $this->ProfileID;
-    }
-
-    public function setProfileID(?string $ProfileID): Invoice
-    {
-        $this->ProfileID = $ProfileID;
-        return $this;
-    }
-    public function getUUID(): ?string
-    {
-        return $this->UUID;
-    }
-
-    public function setUUID(?string $UUID): Invoice
-    {
-        $this->UUID = $UUID;
-        return $this;
-    }
-    public function getLineCountNumeric(): ?string
-    {
-        return $this->lineCountNumeric;
-    }
-
-    public function setLineCountNumeric(?string $lineCountNumeric): Invoice
-    {
-        $this->lineCountNumeric = $lineCountNumeric;
-        return $this;
-    }
-
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
     /**
-     * @param mixed $id
-     * @return Invoice
+     * @return string
      */
-    public function setId(?string $id): Invoice
+    public function getCustomizationID(): string
     {
-        $this->id = $id;
-        return $this;
+        return $this->customizationID;
     }
 
     /**
@@ -144,8 +99,47 @@ class Invoice implements XmlSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getProfileID(): ?string
+    {
+        return $this->profileID;
+    }
+
+    /**
+     * @param string $ProfileID
+     * @return Invoice
+     */
+
+    public function setProfileID(?string $profileID): Invoice
+    {
+        $this->profileID = $profileID;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     * @return Invoice
+     */
+
+    public function setId(?string $id): Invoice
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
+
     public function isCopyIndicator(): bool
     {
         return $this->copyIndicator;
@@ -155,6 +149,7 @@ class Invoice implements XmlSerializable
      * @param bool $copyIndicator
      * @return Invoice
      */
+
     public function setCopyIndicator(bool $copyIndicator): Invoice
     {
         $this->copyIndicator = $copyIndicator;
@@ -162,8 +157,29 @@ class Invoice implements XmlSerializable
     }
 
     /**
-     * @return DateTime
+     * @return string
      */
+
+    public function getUUID(): ?string
+    {
+        return $this->UUID;
+    }
+
+    /**
+     * @param string $UUID
+     * @return Invoice
+     */
+
+    public function setUUID(?string $UUID): Invoice
+    {
+        $this->UUID = $UUID;
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+    */
+
     public function getIssueDate(): ?DateTime
     {
         return $this->issueDate;
@@ -176,34 +192,6 @@ class Invoice implements XmlSerializable
     public function setIssueDate(DateTime $issueDate): Invoice
     {
         $this->issueDate = $issueDate;
-        return $this;
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getDueDate(): ?DateTime
-    {
-        return $this->dueDate;
-    }
-
-    /**
-     * @param DateTime $dueDate
-     * @return Invoice
-     */
-    public function setDueDate(DateTime $dueDate): Invoice
-    {
-        $this->dueDate = $dueDate;
-        return $this;
-    }
-
-    /**
-     * @param mixed $currencyCode
-     * @return Invoice
-     */
-    public function setDocumentCurrencyCode(string $currencyCode = 'EUR'): Invoice
-    {
-        $this->documentCurrencyCode = $currencyCode;
         return $this;
     }
 
@@ -229,7 +217,7 @@ class Invoice implements XmlSerializable
     /**
      * @return string
      */
-    public function getNote()
+    public function getNote():?string
     {
         return $this->note;
     }
@@ -244,39 +232,146 @@ class Invoice implements XmlSerializable
         return $this;
     }
 
+
     /**
-     * @return DateTime
+     * @return string
      */
-    public function getTaxPointDate(): ?DateTime
+    public function getDocumentCurrencyCode(): ?string
     {
-        return $this->taxPointDate;
+        return $this->documentCurrencyCode;
+    }
+
+     /**
+     * @param mixed $currencyCode
+     * @return Invoice
+     */
+    public function setDocumentCurrencyCode(string $currencyCode = 'TRY'): Invoice
+    {
+        $this->documentCurrencyCode = $currencyCode;
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+
+    public function getLineCountNumeric(): ?string
+    {
+        return $this->lineCountNumeric;
     }
 
     /**
-     * @param DateTime $taxPointDate
+     * @param string $lineCountNumeric
      * @return Invoice
      */
-    public function setTaxPointDate(DateTime $taxPointDate): Invoice
+
+    public function setLineCountNumeric(?string $lineCountNumeric): Invoice
     {
-        $this->taxPointDate = $taxPointDate;
+        $this->lineCountNumeric = $lineCountNumeric;
+        return $this;
+    }
+
+
+
+    /**
+     * @return InvoicePeriod
+     */
+    public function getInvoicePeriod(): ?InvoicePeriod
+    {
+        return $this->invoicePeriod;
+    }
+
+    /**
+     * @param InvoicePeriod $invoicePeriod
+     * @return Invoice
+     */
+    public function setInvoicePeriod(?InvoicePeriod $invoicePeriod): Invoice
+    {
+        $this->invoicePeriod = $invoicePeriod;
         return $this;
     }
 
     /**
-     * @return PaymentTerms
+     * @return OrderReference
      */
-    public function getPaymentTerms(): ?PaymentTerms
+    public function getOrderReference(): ?OrderReference
     {
-        return $this->paymentTerms;
+        return $this->orderReference;
     }
 
     /**
-     * @param PaymentTerms $paymentTerms
+     * @param OrderReference $orderReference
+     * @return OrderReference
+     */
+    public function setOrderReference(?OrderReference $orderReference): Invoice
+    {
+        $this->orderReference = $orderReference;
+        return $this;
+    }
+
+    public function getbillingReference()
+    {
+        return $this->billingReference;
+    }
+
+    public function setBillingReference(?BillingReference $billingReference): Invoice
+    {
+        $this->billingReference = $billingReference;
+        return $this;
+    }
+
+    /**
+     * @return ContractDocumentReference
+     */
+    public function getContractDocumentReference(): ?ContractDocumentReference
+    {
+        return $this->contractDocumentReference;
+    }
+
+    /**
+     * @param string $ContractDocumentReference
      * @return Invoice
      */
-    public function setPaymentTerms(PaymentTerms $paymentTerms): Invoice
+    public function setContractDocumentReference(?ContractDocumentReference $contractDocumentReference): Invoice
     {
-        $this->paymentTerms = $paymentTerms;
+        $this->contractDocumentReference = $contractDocumentReference;
+        return $this;
+    }
+
+    /**
+     * @return AdditionalDocumentReference
+     */
+    public function getAdditionalDocumentReference(): ?AdditionalDocumentReference
+    {
+        return $this->additionalDocumentReference;
+    }
+
+    /**
+     * @param AdditionalDocumentReference $additionalDocumentReference
+     * @return Invoice
+     */
+    public function setAdditionalDocumentReference(AdditionalDocumentReference $additionalDocumentReference): Invoice
+    {
+        $this->additionalDocumentReference = $additionalDocumentReference;
+        return $this;
+    }
+
+    /**
+     * @return Signatures[]
+     */
+    public function getSignatures(): ?array
+    {
+        return $this->signatures;
+    }
+
+    /**
+     * @param Signature[] $Signatures
+     * @return Signature
+     */
+    public function setSignatures(array $Signatures): Invoice
+    {
+        $this->signatures = $Signatures;
         return $this;
     }
 
@@ -301,24 +396,6 @@ class Invoice implements XmlSerializable
     /**
      * @return Party
      */
-    public function getSupplierAssignedAccountID(): ?string
-    {
-        return $this->supplierAssignedAccountID;
-    }
-
-    /**
-     * @param string $supplierAssignedAccountID
-     * @return Invoice
-     */
-    public function setSupplierAssignedAccountID(string $supplierAssignedAccountID): Invoice
-    {
-        $this->supplierAssignedAccountID = $supplierAssignedAccountID;
-        return $this;
-    }
-
-    /**
-     * @return Party
-     */
     public function getAccountingCustomerParty(): ?Party
     {
         return $this->accountingCustomerParty;
@@ -334,6 +411,42 @@ class Invoice implements XmlSerializable
         return $this;
     }
 
+     /**
+     * @param string $buyerReference
+     * @return Invoice
+     */
+    public function setBuyerReference(?string $buyerReference): Invoice
+    {
+        $this->buyerReference = $buyerReference;
+        return $this;
+    }
+
+      /**
+     * @return string buyerReference
+     */
+    public function getBuyerReference(): ?string
+    {
+        return $this->buyerReference;
+    }
+
+   /**
+     * @return Delivery
+     */
+    public function getDelivery(): ?Delivery
+    {
+        return $this->delivery;
+    }
+
+    /**
+     * @param Delivery $delivery
+     * @return Invoice
+     */
+    public function setDelivery(?Delivery $delivery): Invoice
+    {
+        $this->delivery = $delivery;
+        return $this;
+    }
+
     /**
      * @return PaymentMeans
      */
@@ -346,9 +459,45 @@ class Invoice implements XmlSerializable
      * @param PaymentMeans $paymentMeans
      * @return Invoice
      */
-    public function setPaymentMeans(PaymentMeans $paymentMeans): Invoice
+    public function setPaymentMeans(?PaymentMeans $paymentMeans): Invoice
     {
         $this->paymentMeans = $paymentMeans;
+        return $this;
+    }
+
+     /**
+     * @return PaymentTerms
+     */
+    public function getPaymentTerms(): ?PaymentTerms
+    {
+        return $this->paymentTerms;
+    }
+
+    /**
+     * @param PaymentTerms $paymentTerms
+     * @return Invoice
+     */
+    public function setPaymentTerms(?PaymentTerms $paymentTerms): Invoice
+    {
+        $this->paymentTerms = $paymentTerms;
+        return $this;
+    }
+
+    /**
+     * @return AllowanceCharge[]
+     */
+    public function getAllowanceCharges(): ?array
+    {
+        return $this->allowanceCharges;
+    }
+
+    /**
+     * @param AllowanceCharge[] $allowanceCharges
+     * @return Invoice
+     */
+    public function setAllowanceCharges(array $allowanceCharges): Invoice
+    {
+        $this->allowanceCharges = $allowanceCharges;
         return $this;
     }
 
@@ -407,160 +556,6 @@ class Invoice implements XmlSerializable
     }
 
     /**
-     * @return AllowanceCharge[]
-     */
-    public function getAllowanceCharges(): ?array
-    {
-        return $this->allowanceCharges;
-    }
-
-    /**
-     * @param AllowanceCharge[] $allowanceCharges
-     * @return Invoice
-     */
-    public function setAllowanceCharges(array $allowanceCharges): Invoice
-    {
-        $this->allowanceCharges = $allowanceCharges;
-        return $this;
-    }
-
-    /**
-     * @return AdditionalDocumentReference
-     */
-    public function getAdditionalDocumentReference(): ?AdditionalDocumentReference
-    {
-        return $this->additionalDocumentReference;
-    }
-
-    /**
-     * @param AdditionalDocumentReference $additionalDocumentReference
-     * @return Invoice
-     */
-    public function setAdditionalDocumentReference(AdditionalDocumentReference $additionalDocumentReference): Invoice
-    {
-        $this->additionalDocumentReference = $additionalDocumentReference;
-        return $this;
-    }
-
-    /**
-     * @param string $buyerReference
-     * @return Invoice
-     */
-    public function setBuyerReference(string $buyerReference): Invoice
-    {
-        $this->buyerReference = $buyerReference;
-        return $this;
-    }
-
-      /**
-     * @return string buyerReference
-     */
-    public function getBuyerReference(): ?string
-    {
-        return $this->buyerReference;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAccountingCostCode(): ?string
-    {
-        return $this->accountingCostCode;
-    }
-
-    /**
-     * @param mixed $accountingCostCode
-     * @return Invoice
-     */
-    public function setAccountingCostCode(string $accountingCostCode): Invoice
-    {
-        $this->accountingCostCode = $accountingCostCode;
-        return $this;
-    }
-
-    /**
-     * @return InvoicePeriod
-     */
-    public function getInvoicePeriod(): ?InvoicePeriod
-    {
-        return $this->invoicePeriod;
-    }
-
-    /**
-     * @param InvoicePeriod $invoicePeriod
-     * @return Invoice
-     */
-    public function setInvoicePeriod(InvoicePeriod $invoicePeriod): Invoice
-    {
-        $this->invoicePeriod = $invoicePeriod;
-        return $this;
-    }
-
-    /**
-     * @return Delivery
-     */
-    public function getDelivery(): ?Delivery
-    {
-        return $this->delivery;
-    }
-
-    /**
-     * @param Delivery $delivery
-     * @return Invoice
-     */
-    public function setDelivery(Delivery $delivery): Invoice
-    {
-        $this->delivery = $delivery;
-        return $this;
-    }
-
-    /**
-     * @return OrderReference
-     */
-    public function getOrderReference(): ?OrderReference
-    {
-        return $this->orderReference;
-    }
-
-    /**
-     * @param OrderReference $orderReference
-     * @return OrderReference
-     */
-    public function setOrderReference(OrderReference $orderReference): Invoice
-    {
-        $this->orderReference = $orderReference;
-        return $this;
-    }
-
-    /**
-     * @return ContractDocumentReference
-     */
-    public function getContractDocumentReference(): ?ContractDocumentReference
-    {
-        return $this->contractDocumentReference;
-    }
-
-    /**
-     * @param string $ContractDocumentReference
-     * @return Invoice
-     */
-    public function setContractDocumentReference(ContractDocumentReference $contractDocumentReference): Invoice
-    {
-        $this->contractDocumentReference = $contractDocumentReference;
-        return $this;
-    }
-    public function getbillingReference()
-    {
-        return $this->billingReference;
-    }
-    public function setBillingReference(BillingReference $billingReference): Invoice
-    {
-        $this->billingReference = $billingReference;
-        return $this;
-    }
-
-
-    /**
      * The validate function that is called during xml writing to valid the data of the object.
      *
      * @return void
@@ -568,25 +563,44 @@ class Invoice implements XmlSerializable
      */
     public function validate()
     {
+        if ($this->UBLExtensions === null) {
+            throw new InvalidArgumentException('Missing invoice UBLExtensions');
+        }
+        if($this->UBLVersionID == null){
+            throw new InvalidArgumentException('Missing invoice UBLVersionID');
+        }
+        if($this->customizationID == null){
+            throw new InvalidArgumentException('Missing invoice customizationID');
+        }
+        if ($this->profileID === null) {
+            throw new InvalidArgumentException('Missing invoice profileID');
+        }
         if ($this->id === null) {
             throw new InvalidArgumentException('Missing invoice id');
         }
-        if ($this->ProfileID === null) {
-            throw new InvalidArgumentException('Missing invoice ProfileID');
+        if($this->copyIndicator == null){
+            throw new InvalidArgumentException('Missing invoice copyIndicator');
         }
         if ($this->UUID === null) {
             throw new InvalidArgumentException('Missing invoice UUID');
         }
-        if ($this->lineCountNumeric === null) {
-            throw new InvalidArgumentException('Missing invoice lineCountNumeric');
+        if ($this->issueDate === null) {
+            throw new InvalidArgumentException('Missing invoice issueDate');
         }
-
         if (!$this->issueDate instanceof DateTime) {
             throw new InvalidArgumentException('Invalid invoice issueDate');
         }
-
         if ($this->invoiceTypeCode === null) {
             throw new InvalidArgumentException('Missing invoice invoiceTypeCode');
+        }
+        if ($this->documentCurrencyCode === null) {
+            throw new InvalidArgumentException('Missing invoice documentCurrencyCode');
+        }
+        if ($this->lineCountNumeric === null) {
+            throw new InvalidArgumentException('Missing invoice lineCountNumeric');
+        }
+        if ($this->signatures === null) {
+            throw new InvalidArgumentException('Missing invoice Signature');
         }
 
         if ($this->accountingSupplierParty === null) {
@@ -596,6 +610,9 @@ class Invoice implements XmlSerializable
         if ($this->accountingCustomerParty === null) {
             throw new InvalidArgumentException('Missing invoice accountingCustomerParty');
         }
+        if ($this->taxTotal === null) {
+            throw new InvalidArgumentException('Missing invoice taxTotal');
+        }
 
         if ($this->invoiceLines === null) {
             throw new InvalidArgumentException('Missing invoice lines');
@@ -604,12 +621,7 @@ class Invoice implements XmlSerializable
         if ($this->legalMonetaryTotal === null) {
             throw new InvalidArgumentException('Missing invoice LegalMonetaryTotal');
         }
-        if ($this->signatures === null) {
-            throw new InvalidArgumentException('Missing invoice Signature');
-        }
-        if ($this->UBLExtensions === null) {
-            throw new InvalidArgumentException('Missing invoice UBLExtensions');
-        }
+        
     }
 
     /**
@@ -620,137 +632,82 @@ class Invoice implements XmlSerializable
     public function xmlSerialize(Writer $writer)
     {
         $this->validate();
+
         if ($this->UBLExtensions !== null) {
             $writer->write([
                 Schema::EXT . 'UBLExtensions' => [Schema::EXT . 'UBLExtension' => [Schema::EXT . 'ExtensionContent' => [ Schema::n4 .'auto-generated_for_wildcard' => '']]] // [ Schema::n4 .'auto-generated_for_wildcard']],
             ]);
         
         }
-        
-        
         $writer->write([
             Schema::CBC . 'UBLVersionID' => $this->UBLVersionID,
             Schema::CBC . 'CustomizationID' => $this->customizationID,
-            Schema::CBC . 'ProfileID' => $this->ProfileID,
+            Schema::CBC . 'ProfileID' => $this->profileID,
             Schema::CBC . 'ID' => $this->id,
-            // Schema::CBC . 'UUID' => $this->UUID,
-            // Schema::CBC . 'LineCountNumeric' => $this->lineCountNumeric,
-        ]);
-        
-        if ($this->copyIndicator !== null) {
-            $writer->write([
-                Schema::CBC . 'CopyIndicator' => $this->copyIndicator ? 'true' : 'false'
-            ]);
-        }
-        $writer->write([
-            // Schema::CBC . 'UBLVersionID' => $this->UBLVersionID,
-            // Schema::CBC . 'CustomizationID' => $this->customizationID,
-            // Schema::CBC . 'ProfileID' => $this->ProfileID,
-            // Schema::CBC . 'ID' => $this->id,
-            Schema::CBC . 'UUID' => $this->UUID,
-            // Schema::CBC . 'LineCountNumeric' => $this->lineCountNumeric,
+            Schema::CBC . 'CopyIndicator' => $this->copyIndicator ? 'true' : 'false',
+            Schema::CBC . 'UUID' => $this->UUID
         ]);
 
         $writer->write([
             Schema::CBC . 'IssueDate' => $this->issueDate->format('Y-m-d'),
-            // Schema::CBC . 'LineCountNumeric' => $this->lineCountNumeric
         ]);
-        if ($this->invoiceTypeCode !== null) {
-            $writer->write([
-                Schema::CBC . 'InvoiceTypeCode' => $this->invoiceTypeCode
-            ]);
-        }
-        $writer->write([
-            Schema::CBC . 'DocumentCurrencyCode' => $this->documentCurrencyCode,
-        ]);
-        $writer->write([
-            // Schema::CBC . 'IssueDate' => $this->issueDate->format('Y-m-d'),
-            Schema::CBC . 'LineCountNumeric' => $this->lineCountNumeric
-        ]);
-        
-        if ($this->dueDate !== null) {
-            $writer->write([
-                Schema::CBC . 'DueDate' => $this->dueDate->format('Y-m-d')
-            ]);
-        }
-        // if ($this->billingReference !== null) {
-        //     $writer->write([
-        //         Schema::CAC . 'BillingReference' => $this->billingReference
-        //     ]);
-        // }
-        foreach ($this->signatures as $Signature) {
-            $writer->write([
-                Schema::CAC . 'Signature' => $Signature
-            ]);
-        }
 
-        
+
+        $writer->write([
+            Schema::CBC . 'InvoiceTypeCode' => $this->invoiceTypeCode
+        ]);
 
         if ($this->note !== null) {
             $writer->write([
                 Schema::CBC . 'Note' => $this->note
             ]);
         }
+        $writer->write([
+            Schema::CBC . 'DocumentCurrencyCode' => $this->documentCurrencyCode,
+        ]);
 
-        if ($this->taxPointDate !== null) {
-            $writer->write([
-                Schema::CBC . 'TaxPointDate' => $this->taxPointDate->format('Y-m-d')
-            ]);
-        }
-
-        
-
-        if ($this->accountingCostCode !== null) {
-            $writer->write([
-                Schema::CBC . 'AccountingCostCode' => $this->accountingCostCode
-            ]);
-        }
-
-        if ($this->buyerReference != null) {
-            $writer->write([
-                Schema::CBC . 'BuyerReference' => $this->buyerReference
-            ]);
-        }
-
-        if ($this->contractDocumentReference !== null) {
-            $writer->write([
-                Schema::CAC . 'ContractDocumentReference' => $this->contractDocumentReference,
-            ]);
-        }
-
+        $writer->write([
+    
+            Schema::CBC . 'LineCountNumeric' => $this->lineCountNumeric
+        ]);
         if ($this->invoicePeriod != null) {
             $writer->write([
                 Schema::CAC . 'InvoicePeriod' => $this->invoicePeriod
             ]);
         }
-
         if ($this->orderReference != null) {
             $writer->write([
                 Schema::CAC . 'OrderReference' => $this->orderReference
             ]);
         }
-
+        if ($this->contractDocumentReference !== null) {
+            $writer->write([
+                Schema::CAC . 'ContractDocumentReference' => $this->contractDocumentReference,
+            ]);
+        }
         if ($this->additionalDocumentReference !== null) {
             $writer->write([
                 Schema::CAC . 'AdditionalDocumentReference' => $this->additionalDocumentReference
             ]);
         }
 
-        if ($this->supplierAssignedAccountID !== null) {
-            $customerParty = [
-                Schema::CBC . 'SupplierAssignedAccountID' => $this->supplierAssignedAccountID,
-                Schema::CAC . "Party" => $this->accountingCustomerParty
-            ];
-        } else {
-            $customerParty = [
-                Schema::CAC . "Party" => $this->accountingCustomerParty
-            ];
+        foreach ($this->signatures as $Signature) {
+            $writer->write([
+                Schema::CAC . 'Signature' => $Signature
+            ]);
         }
 
+        // dd($this->accountingSupplierParty, $this->accountingCustomerParty);
         $writer->write([
             Schema::CAC . 'AccountingSupplierParty' => [Schema::CAC . "Party" => $this->accountingSupplierParty],
-            Schema::CAC . 'AccountingCustomerParty' => $customerParty,
+            Schema::CAC . 'AccountingCustomerParty' => [Schema::CAC . "Party" => $this->accountingCustomerParty],
         ]);
+        
+        if ($this->buyerReference != null) {
+            $writer->write([
+                Schema::CBC . 'BuyerReference' => $this->buyerReference
+            ]);
+        }
 
         if ($this->delivery != null) {
             $writer->write([
@@ -783,18 +740,15 @@ class Invoice implements XmlSerializable
                 Schema::CAC . 'TaxTotal' => $this->taxTotal
             ]);
         }
-        
         $writer->write([
             Schema::CAC . 'LegalMonetaryTotal' => $this->legalMonetaryTotal
         ]);
-        
-        
+
         foreach ($this->invoiceLines as $invoiceLine) {
             $writer->write([
                 Schema::CAC . 'InvoiceLine' => $invoiceLine
             ]);
         }
-
         
     }
 }

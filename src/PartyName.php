@@ -10,7 +10,7 @@ use InvalidArgumentException;
 class PartyName implements XmlSerializable
 {
 
-    private $name;
+    private $name = '';
 
     
 
@@ -30,11 +30,11 @@ class PartyName implements XmlSerializable
     public function xmlSerialize(Writer $writer)
     {
 
-        if ($this->name !== null) {
-            $writer->write([
-                Schema::CBC . 'Name' => $this->name,
-            ]);
-        }
+       
+        $writer->write([
+            Schema::CBC . 'Name' => $this->name,
+        ]);
+        
     }
 
 

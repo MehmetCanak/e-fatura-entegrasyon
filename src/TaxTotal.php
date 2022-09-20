@@ -42,7 +42,17 @@ class TaxTotal implements XmlSerializable
      * @param TaxSubTotal $taxSubTotal
      * @return TaxTotal
      */
-    public function addTaxSubTotal(TaxSubTotal $taxSubTotal): TaxTotal
+    public function addTaxSubTotal(?array $taxSubTotal): TaxTotal
+    {
+        $this->taxSubTotals[] = $taxSubTotal;
+        return $this;
+    }
+    // public function addTaxSubTotal(TaxSubTotal $taxSubTotal): TaxTotal
+    // {
+    //     $this->taxSubTotals[] = $taxSubTotal;
+    //     return $this;
+    // }
+    public function setTaxSubTotal(?array $taxSubTotal): TaxTotal
     {
         $this->taxSubTotals[] = $taxSubTotal;
         return $this;

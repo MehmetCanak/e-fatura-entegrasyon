@@ -318,27 +318,26 @@ class TemelFatura{
     }
 
     public function setTaxSubtotal($TaxSubtotal){
-        $taxableAmount = isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null;
-        $taxAmount = isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : custom_abort('TaxSubtotal'. ' TaxAmount bos olamaz.');
-        $calculationSequenceNumeric = isset($TaxSubtotal['CalculationSequenceNumeric']) ? $TaxSubtotal['CalculationSequenceNumeric'] : null;
-        $percent = isset($TaxSubtotal['Percent']) ? $TaxSubtotal['Percent'] : null;
+        $taxSubTotals = [];
 
-        $TaxCategory = (new TaxCategory())
-            ->setTaxScheme(isset($TaxSubtotal['TaxCategory']['TaxScheme']) ? $this->setTaxScheme($TaxSubtotal['TaxCategory']['TaxScheme'], 'TaxSubtotal') : null);
+        foreach ($TaxSubtotal as $key => $value) {
 
-        $this->TaxSubtotal = (new TaxSubtotal())
-            ->setTaxableAmount(isset($TaxSubtotal['TaxableAmount']) ? $TaxSubtotal['TaxableAmount'] : null)
-            ->setTaxAmount(isset($TaxSubtotal['TaxAmount']) ? $TaxSubtotal['TaxAmount'] : null)
-            ->setCalculationSequenceNumeric(isset($TaxSubtotal['CalculationSequenceNumeric']) ? $TaxSubtotal['CalculationSequenceNumeric'] : null)
-            ->setPercent(isset($TaxSubtotal['Percent']) ? $TaxSubtotal['Percent'] : null)
-            ->setTaxCategory($TaxCategory);
-        return $this->TaxSubtotal;
+            $TaxCategory = (new TaxCategory())
+              ->setTaxScheme(isset($value['TaxCategory']['TaxScheme']) ? $this->setTaxScheme($value['TaxCategory']['TaxScheme'], 'TaxSubtotal') : null);
+            $taxSubTotals[] = (new TaxSubtotal())
+                ->setTaxableAmount(isset($value['TaxableAmount']) ? $value['TaxableAmount'] : null)
+                ->setTaxAmount(isset($value['TaxAmount']) ? $value['TaxAmount'] :custom_abort('TaxSubtotal'. ' TaxAmount bos olamaz.'))
+                ->setCalculationSequenceNumeric(isset($value['CalculationSequenceNumeric']) ? $value['CalculationSequenceNumeric'] : null)
+                ->setPercent(isset($value['Percent']) ? $value['Percent'] : null)
+                ->setTaxCategory($TaxCategory);
+        }
+        return $taxSubTotals;
     }
 
     public function setTaxtotal($TaxTotal){
-        
+        //  dd($TaxTotal,$TaxTotal['TaxSubtotals'],isset($TaxTotal['TaxSubtotals']),isset($TaxTotal['TaxAmount']));
         $taxAmount = isset($TaxTotal['TaxAmount']) ? $TaxTotal['TaxAmount'] : custom_abort('TaxTotal'. ' TaxAmount bos olamaz.');
-        $taxSubtotal = isset($TaxTotal['TaxSubtotal']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotal']) : custom_abort('TaxTotal'. ' TaxSubtotal bos olamaz.');
+        $taxSubtotal = isset($TaxTotal['TaxSubtotals']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotals']) : custom_abort('TaxTotal TaxSubtotals bos olamaz.');
         $this->TaxTotal = (new TaxTotal())
             ->setTaxAmount($taxAmount)
             ->addTaxSubTotal($taxSubtotal);
@@ -496,10 +495,10 @@ class TemelFatura{
         $schema = new \DOMDocument();
         $schema->load($path);
 
-
         $is_valid = $this->isValid($path);
+        // $xslt = $this->transformXslt($path);
        
-        dd($invoice);
+        dd($is_valid,$invoice);
 
 
     }
@@ -510,6 +509,39 @@ class TemelFatura{
         $tempDom->load($tempFile);
         $xsd_path = public_path('ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd');
         return $tempDom->schemaValidate($xsd_path);
+    }
+    public function transformXslt($tempFile){
+
+        
+
+        $xml = new \DomDocument();
+        $xml->load($tempFile);
+        $xml->encoding = "utf-8";
+        
+        $xslt = new \XSLTProcessor();
+
+        $xsl_path =  public_path('ubl/xml/general.xslt');
+        $xsl = new \DomDocument();
+	    $xsl->load($xsl_path);
+        $xsl->encoding = "utf-8";
+        
+        $xslt->importStyleSheet($xsl);
+
+
+
+        $output = $proc->transformToURI($xml, $tempFile);
+
+        dd(155,$output);
+        if ($output = $proc->transformToURI($xml, $tempFile))
+        {
+            echo $output;
+        } 
+        else 
+        {
+            echo "<p>This feed is not available.</p>";
+        }
+
+
     }
 
 }
