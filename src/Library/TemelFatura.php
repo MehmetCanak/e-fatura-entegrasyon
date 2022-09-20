@@ -61,12 +61,13 @@ class TemelFatura{
         $this->setID($record['ID']);
         $this->setCopyIndicator($record['CopyIndicator']);
         $this->setUUID($record['UUID']);
+        dd($record['UUID'],$this->getUUID());
         $this->setIssueDate($record['IssueDate']);
         $this->setInvoiceTypeCode($record['InvoiceTypeCode']);
         $this->setNote();
         $this->setDocumentCurrencyCode($record['DocumentCurrencyCode']);
         $this->setLineCountNumeric($record['LineCountNumeric']);
-        $this->setSignatures($record['Signature']);
+        $this->setSignatures($record['Signatures']);
         $this->setAccountingSupplierParty($record['AccountingSupplierParty']);
         $this->setAccountingCustomerParty($record['AccountingCustomerParty']);
         $this->setTaxtotal($record['TaxTotal']);
@@ -203,24 +204,23 @@ class TemelFatura{
 
     public function setSignatures($Signature){
 
-        if(!isset($Signature['SignatoryParty']['PartyIdentification'])) custom_abort_('Signature'. ' SignatoryParty PartyIdentification bos olamaz.');
-        if(!isset($Signature['SignatoryParty']['PostalAddress'])) custom_abort_('Signature'. ' SignatoryParty PostalAddress bos olamaz.');
-        if(!isset($Signature['DigitalSignatureAttachment']['ExternalReference']['URI'])) custom_abort_('Signature'. ' DigitalSignatureAttachment ExternalReference URI bos olamaz.');
+        foreach ($Signature as $key => $value) {
+            isset($value['SignatoryParty']) ? true : custom_abort('Signature SignatoryParty bos olamaz.');
+            isset($value['DigitalSignatureAttachment']) ? true : custom_abort('Signature DigitalSignatureAttachment bos olamaz.');
+            $this->Signatures[] = (new Signature())
+                ->setID(isset($value['ID']) ? $value['ID'] : custom_abort_('Signature ID bos olamaz.'))
+                ->setSignatoryParty((new Party())
+                    ->setPartyIdentification($this->getPartyIdentification($value['SignatoryParty']['PartyIdentification'], 'Signature'))
+                    ->setPartyName((new PartyName())
+                        ->setName(isset($value['SignatoryParty']['PartyName']['Name']) ? $value['SignatoryParty']['PartyName']['Name'] : custom_abort_('Signature PartyName bos olamaz.'))
+                    )
+                    ->setPostalAddress($this->getAddress($value['SignatoryParty']['PostalAddress'], 'Signature'))
+                )
+                ->setDigitalSignatureAttachment($this->getDigitalSignatureAttachment($value['DigitalSignatureAttachment']['ExternalReference']));
+        }
 
-        $signature_partyIdentification = $this->getPartyIdentification($Signature['SignatoryParty']['PartyIdentification'], 'Signature');
-        $signature_address = $this->getAddress($Signature['SignatoryParty']['PostalAddress'], 'Signature');
+        return $this->Signatures;
 
-        $signatoryParty = (new SignatoryParty())
-            ->setPartyIdentification($signature_partyIdentification)
-            ->setPostalAddress($signature_address);
-        
-        $digitalSignatureAttachment = $this->getdigitalSignatureAttachment($Signature['DigitalSignatureAttachment']['ExternalReference']);
-        $Signatures[] = (new Signature())
-            ->setId($Signature['ID'])
-            ->setSignatoryParty($signatoryParty)
-            ->setDigitalSignatureAttachment($digitalSignatureAttachment);
-
-        $this->Signatures = $Signatures;
     }
 
     public function getSignatures(){

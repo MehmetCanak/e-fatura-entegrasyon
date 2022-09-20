@@ -35,7 +35,7 @@ class Signature implements XmlSerializable
      * @return int
      */
 
-     public function getSignatoryParty(): ?SignatoryParty
+     public function getSignatoryParty(): ?Party
      {
          return $this->signatoryParty;
      }
@@ -44,7 +44,7 @@ class Signature implements XmlSerializable
         * @param SignatoryParty $signatoryParty
         * @return Signature
         */
-        public function setSignatoryParty(?SignatoryParty $signatoryParty): Signature
+        public function setSignatoryParty(?Party $signatoryParty): Signature
         {
             $this->signatoryParty = $signatoryParty;
             return $this;
