@@ -61,7 +61,6 @@ class TemelFatura{
         $this->setID($record['ID']);
         $this->setCopyIndicator($record['CopyIndicator']);
         $this->setUUID($record['UUID']);
-        dd($record['UUID'],$this->getUUID());
         $this->setIssueDate($record['IssueDate']);
         $this->setInvoiceTypeCode($record['InvoiceTypeCode']);
         $this->setNote();
@@ -341,6 +340,7 @@ class TemelFatura{
         $this->TaxTotal = (new TaxTotal())
             ->setTaxAmount($taxAmount)
             ->addTaxSubTotal($taxSubtotal);
+        return $this->TaxTotal;
     }
 
     public function getTaxtotal(){
@@ -389,9 +389,8 @@ class TemelFatura{
     }
 
     public function setInvoiceLine($InvoiceLine){
-        
         $id = isset($InvoiceLine['ID']) ? $InvoiceLine['ID'] : custom_abort_('InvoiceLine'. ' ID bos olamaz.');
-        $unitCode =  isset($InvoiceLine['unitCode']) ? $InvoiceLine['unitCode'] : custom_abort_('InvoiceLine'. ' InvoicedQuantity unitCode bos olamaz.');
+        $unitCode =  isset($InvoiceLine['UnitCode']) ? $InvoiceLine['UnitCode'] : custom_abort_('InvoiceLine'. ' InvoicedQuantity UnitCode bos olamaz.');
         $note = isset($InvoiceLine['Note']) ? $InvoiceLine['Note'] : null;
         $invoicedQuantity = isset($InvoiceLine['InvoicedQuantity']) ? $InvoiceLine['InvoicedQuantity'] : custom_abort_('InvoiceLine'. ' InvoicedQuantity bos olamaz.');
         $lineExtensionAmount = isset($InvoiceLine['LineExtensionAmount']) ? $InvoiceLine['LineExtensionAmount'] : custom_abort_('InvoiceLine'. ' LineExtensionAmount bos olamaz.');

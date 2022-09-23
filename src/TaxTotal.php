@@ -10,7 +10,7 @@ use InvalidArgumentException;
 class TaxTotal implements XmlSerializable
 {
     private $taxAmount;
-    private $taxSubTotals = [];
+    private $taxSubTotals;
 
     /**
      * @return mixed
@@ -44,7 +44,7 @@ class TaxTotal implements XmlSerializable
      */
     public function addTaxSubTotal(?array $taxSubTotal): TaxTotal
     {
-        $this->taxSubTotals[] = $taxSubTotal;
+        $this->taxSubTotals = $taxSubTotal;
         return $this;
     }
     // public function addTaxSubTotal(TaxSubTotal $taxSubTotal): TaxTotal
