@@ -30,6 +30,10 @@ use web36\EFatura\InvoiceLine;
 use web36\EFatura\Invoice;
 use web36\EFatura\UnitCode;
 use web36\EFatura\Generator;
+use web36\EFatura\Wsdl\InvoiceWS;
+use web36\EFatura\Wsdl\getPrefixList;
+use web36\EFatura\WsdlQuery\GetLastInvoiceIdAndDate;
+use web36\EFatura\Wsdl\getNewUUID;
 
 class TemelFatura{
 
@@ -443,6 +447,16 @@ class TemelFatura{
 
     public function createXml(){
 
+       
+        $prefixList = new getPrefixList();
+        $source_id = 2687290527;
+        $prefix = "TES";
+        $last = new getNewUUID();
+        $InvoiceSoap = new InvoiceWS();
+
+
+        dd($InvoiceSoap->getNewUUID($last), $InvoiceSoap->getPrefixList($prefixList));
+
         $UBLExtension = $this->getUBLExtension();
         $UBLVersionID = $this->getUBLVersionID();
         $CustomizationID = $this->getCustomizationID();
@@ -493,6 +507,8 @@ class TemelFatura{
         $dom->save($path);
         $schema = new \DOMDocument();
         $schema->load($path);
+        $out = $schema->saveXML();
+        dd($out);
 
         $is_valid = $this->isValid($path);
         // $xslt = $this->transformXslt($path);

@@ -1,4 +1,5 @@
 <?php
+namespace web36\EFatura\Wsdl;
 
 include_once('getCustomerCreditCount.php');
 include_once('getCustomerCreditCountResponse.php');
@@ -174,12 +175,20 @@ class InvoiceWS extends \SoapClient
   public function __construct(array $options = array(), $wsdl = 'http://servis.mbtfatura.com.tr/InvoiceService/InvoiceWS?wsdl')
   {
     foreach (self::$classmap as $key => $value) {
-    if (!isset($options['classmap'][$key])) {
-      $options['classmap'][$key] = $value;
+      if (!isset($options['classmap'][$key])) {
+        $options['classmap'][$key] = $value;
+      }
     }
-  }
-  
-  parent::__construct($wsdl, $options);
+    parent::__construct($wsdl, $options);
+
+    $headers = array();
+
+    $headers[] = new \SoapHeader('http://servis.mbtfatura.com.tr/InvoiceService/InvoiceWS?wsdl', 'Username', 'admin_001905');
+    $headers[] = new \SoapHeader('http://servis.mbtfatura.com.tr/InvoiceService/InvoiceWS?wsdl', 'Password', '!aYxU&S5');
+    dd($headers, $options, $wsdl, self::$classmap, $this->__getFunctions());
+
+    // parent::__setSoapHeaders($headers);
+
   }
 
   /**

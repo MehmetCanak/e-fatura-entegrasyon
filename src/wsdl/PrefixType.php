@@ -1,5 +1,5 @@
 <?php
-
+namespace web36\EFatura\Wsdl;
 class PrefixType
 {
   const __default = 'PrefixCode';

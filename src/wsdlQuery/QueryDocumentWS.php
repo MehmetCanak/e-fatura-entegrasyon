@@ -1,4 +1,5 @@
 <?php
+namespace web36\EFatura\WsdlQuery;
 
 include_once('QueryInboxDocumentsWithGUIDList.php');
 include_once('QueryInboxDocumentsWithGUIDListResponse.php');
