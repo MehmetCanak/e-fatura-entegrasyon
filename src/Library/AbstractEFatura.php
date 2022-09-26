@@ -39,14 +39,6 @@ abstract class AbstractEFatura extends TestCase
     private $schema = 'ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd';
 
 
-    // public function getUBLExtension(){
-    //     return $this->UBLExtension;
-    // }
-
-    // public function setUBLExtension(){
-    //     $this->UBLExtension =(new UBLExtension())
-    //         ->setUBLExtension('<n4:auto-generated_for_wildcard/>');
-    // }
 
 
 

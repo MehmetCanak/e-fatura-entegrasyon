@@ -31,6 +31,8 @@ class ServiceProvider extends BaseServiceProvider
 
             return new Signature();
         });
+
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'efatura');
         
     }
 }

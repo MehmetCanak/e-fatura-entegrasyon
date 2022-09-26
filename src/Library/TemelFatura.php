@@ -34,6 +34,7 @@ use web36\EFatura\Wsdl\InvoiceWS;
 use web36\EFatura\Wsdl\getPrefixList;
 use web36\EFatura\WsdlQuery\GetLastInvoiceIdAndDate;
 use web36\EFatura\Wsdl\getNewUUID;
+use web36\EFatura\WsdlQuery\QueryDocumentWS;
 
 class TemelFatura{
 
@@ -451,11 +452,17 @@ class TemelFatura{
         $prefixList = new getPrefixList();
         $source_id = 2687290527;
         $prefix = "TES";
-        $last = new getNewUUID();
+        $UUID = new getNewUUID();
         $InvoiceSoap = new InvoiceWS();
-
-
-        dd($InvoiceSoap->getNewUUID($last), $InvoiceSoap->getPrefixList($prefixList));
+        $InvoiceQuery = new QueryDocumentWS();
+        $getLast = new GetLastInvoiceIdAndDate($source_id, $prefix);
+        
+        
+        $responseUUID = $InvoiceSoap->getNewUUID($UUID); // Bu çağrı yapılırken response olarak UUID dönüyor.
+        $responsePrefix = $InvoiceSoap->getPrefixList($prefixList); // Bu çağrı yapılırken Yetkisiz kullanıcı! hatası almaktayım .
+        
+        
+        dd($InvoiceSoap->getNewUUID($UUID),$InvoiceSoap->getPrefixList($prefixList),$InvoiceQuery->getLastInvoiceIdAndDate($getLast));
 
         $UBLExtension = $this->getUBLExtension();
         $UBLVersionID = $this->getUBLVersionID();

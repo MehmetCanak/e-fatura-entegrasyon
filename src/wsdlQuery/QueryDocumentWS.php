@@ -184,6 +184,11 @@ class QueryDocumentWS extends \SoapClient
     if (!isset($options['classmap'][$key])) {
       $options['classmap'][$key] = $value;
     }
+
+    $username = config('efatura.username');
+    $password = config('efatura.password');
+
+    $options['stream_context'] = stream_context_create(array( 'http' => array('header' => 'Username: '.$username."\r\n".'Password: '.$password)));
   }
   
   parent::__construct($wsdl, $options);

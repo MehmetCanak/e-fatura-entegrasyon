@@ -179,15 +179,12 @@ class InvoiceWS extends \SoapClient
         $options['classmap'][$key] = $value;
       }
     }
+    $username = config('efatura.username');
+    $password = config('efatura.password');
+    $options['stream_context'] = stream_context_create(array( 'http' => array('header' => 'Username: '.$username."\r\n".'Password: '.$password)));
+    // $options['stream_context'] = stream_context_create(array( 'http' => array('header' => "Username: xxxxx\r\nPassword: xxxxx")));
+
     parent::__construct($wsdl, $options);
-
-    $headers = array();
-
-    $headers[] = new \SoapHeader('http://servis.mbtfatura.com.tr/InvoiceService/InvoiceWS?wsdl', 'Username', 'admin_001905');
-    $headers[] = new \SoapHeader('http://servis.mbtfatura.com.tr/InvoiceService/InvoiceWS?wsdl', 'Password', '!aYxU&S5');
-    dd($headers, $options, $wsdl, self::$classmap, $this->__getFunctions());
-
-    // parent::__setSoapHeaders($headers);
 
   }
 
