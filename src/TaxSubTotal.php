@@ -111,9 +111,9 @@ class TaxSubTotal implements XmlSerializable
      */
     public function validate()
     {
-        if ($this->taxableAmount === null) {
-            throw new InvalidArgumentException('Missing taxsubtotal taxableAmount');
-        }
+        // if ($this->taxableAmount === null) {
+        //     throw new InvalidArgumentException('Missing taxsubtotal taxableAmount');
+        // }
 
         if ($this->taxAmount === null) {
             throw new InvalidArgumentException('Missing taxsubtotal taxamount');

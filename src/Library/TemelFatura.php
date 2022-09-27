@@ -512,10 +512,10 @@ class TemelFatura{
         $dom->encoding = "utf-8";
         $path = public_path($UUID.'.xml');
         $dom->save($path);
-        $schema = new \DOMDocument();
-        $schema->load($path);
-        $out = $schema->saveXML();
-        dd($out);
+        // $schema = new \DOMDocument();
+        // $schema->load($path);
+        // $out = $schema->saveXML();
+        // dd($out);
 
         $is_valid = $this->isValid($path);
         // $xslt = $this->transformXslt($path);

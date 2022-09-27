@@ -36,7 +36,7 @@ use web36\EFatura\Wsdl\getNewUUID;
 use web36\EFatura\WsdlQuery\QueryDocumentWS;
 
 
-abstract class AbstractEFatura extends TestCase
+abstract class AbstractEFatura
 {
     // private $schema = 'http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd';
     private $schema = 'ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd';
@@ -55,7 +55,7 @@ abstract class AbstractEFatura extends TestCase
     private $Signatures = [];
     private $AccountingSupplierParty;
     private $AccountingCustomerParty;
-    private $Taxtotal;
+    private $Taxtotals;
     private $LegalMonetaryTotal;
     private $InvoiceLines = [];
 
@@ -197,7 +197,8 @@ abstract class AbstractEFatura extends TestCase
         return $this->LineCountNumeric;
     }
 
-    public function setAddress($record, $type){
+    public function setAddress($record, $type)
+    {
 
         return (new Address())
             ->setStreetName(isset($record['StreetName']) ? $record['StreetName'] : null)
@@ -206,36 +207,42 @@ abstract class AbstractEFatura extends TestCase
             ->setCityName(isset($record['CityName']) ? $record['CityName'] : custom_abort_($type. ' il adi bos olamaz.'))
             ->setPostalZone(isset($record['PostalZone']) ? $record['PostalZone'] : null)
             ->setAdditionalStreetName(isset($record['AdditionalStreetName']) ? $record['AdditionalStreetName'] : null)
-            ->setCountry(isset($record['Country']) ? $this->getCountry($record, $type) : custom_abort_($type. ' ulke bilgisi bos olamaz.'));
+            ->setCountry(isset($record['Country']) ? $this->setCountry($record['Country'], $type) : custom_abort_($type. ' ulke bilgisi bos olamaz.'));
     }
-    public function setCountry($record, $type = null){
+    public function setCountry($record, $type = null)
+    {
         return (new Country())
-            ->setName(isset($record['Name']) ? $record['Name'] : custom_abort_($type .'ulke adi bos olamaz.'))
+            ->setName(isset($record['Name']) ? $record['Name'] : custom_abort_($type .' Country Name bos olamaz.'))
             ->setIdentificationCode(isset($record['IdentificationCode']) ? $record['IdentificationCode'] : null);
     }
 
-    public function setPartyIdentification($record, $type){
+    public function setPartyIdentification($record, $type)
+    {
         return (new PartyIdentification())
             ->setID(isset($record['ID']) ? $record['ID'] : custom_abort_($type. ' Vergi Numarası bos olamaz.'))
             ->setSchemeID(isset($record['SchemeID']) ? $record['SchemeID'] : custom_abort_($type. ' Vergi Numarası SchemeID bos olamaz.'));
     }
-    public function setDigitalSignatureAttachment($record){
+    public function setDigitalSignatureAttachment($record)
+    {
         return (new DigitalSignatureAttachment())
-            ->setExternalReference(isset($record['ExternalReference']) ? $this->setExternalReference($record) : custom_abort_('ExternalReference bos olamaz.'));
+            ->setExternalReference(isset($record['ExternalReference']) ? $this->setExternalReference($record['ExternalReference']) : custom_abort_('ExternalReference bos olamaz.'));
     }
-    public function setExternalReference($record){
+    public function setExternalReference($record)
+    {
         return (new ExternalReference())
             ->setURI(isset($record['URI']) ? $record['URI'] : custom_abort_('URI bos olamaz.'));
     }
 
-    public function setParty($record, $type){
+    public function setParty($record, $type)
+    {
         return (new Party())
             ->setPartyIdentification(isset($record['PartyIdentification']) ? $this->setPartyIdentification($record['PartyIdentification'], $type) : custom_abort_($type. ' Vergi Numarası bilgisi bos olamaz.'))
             ->setPartyName(isset($record['PartyName']) ? $this->setPartyName($record['PartyName'], $type) : custom_abort_($type. ' Unvan bilgisi bos olamaz.'))
             ->setPostalAddress(isset($record['PostalAddress']) ? $this->setAddress($record['PostalAddress'], $type) : custom_abort_($type. ' Adres bilgisi bos olamaz.'));       
     }
 
-    public function setSignatures($Signature){
+    public function setSignatures($Signature)
+    {
 
         foreach ($Signature as $key => $value) {
             $this->Signatures[] = (new Signature())
@@ -246,99 +253,87 @@ abstract class AbstractEFatura extends TestCase
         return $this->Signatures;
     }
 
-    public function getSignatures(){
+    public function getSignatures()
+    {
         return $this->Signatures;
     }
 
-    public function setPartyTaxScheme( $record, $type){
+    public function setPartyTaxScheme( $record, $type)
+    {
         return (new PartyTaxScheme())
             ->setTaxScheme(isset($record['TaxScheme']) ? $this->setTaxScheme($record['TaxScheme'], $type) : custom_abort_($type. ' Vergi Dairesi bilgisi bos olamaz.'));
     }
 
-    public function setContact($record, $type){
+    public function setContact($record, $type)
+    {
         return (new Contact())
             ->setTelephone(isset($record['Telephone']) ? $record['Telephone'] : null)
             ->setTelefax(isset($record['Telefax']) ? $record['Telefax'] : null)
             ->setElectronicMail(isset($record['ElectronicMail']) ? $record['ElectronicMail'] : null);
     }
-    public function setPartyName($record, $type){
+
+    public function setPartyName($record, $type)
+    {
         return (new PartyName())
             ->setName(isset($record['Name']) ? $record['Name'] : null);
     }
-    public function setAccountingSupplierParty($AccountingSupplierParty){
 
-        if(!isset($AccountingSupplierParty['Party'])) custom_abort_('AccountingSupplierParty'. ' Party bos olamaz.');
-        if(!isset($AccountingSupplierParty['Party']['PartyIdentification'])) custom_abort_('AccountingSupplierParty'. ' Party PartyIdentification bos olamaz.');
-        // if(!isset($AccountingSupplierParty['Party']['PartyName'])) custom_abort_('AccountingSupplierParty'. ' Party PartyName bos olamaz.');
-        if(!isset($AccountingSupplierParty['Party']['PostalAddress'])) custom_abort_('AccountingSupplierParty'. ' Party PostalAddress bos olamaz.');
+    public function setAccountingSupplierParty($record)
+    {
 
-        $website = isset($AccountingSupplierParty['Party']['WebsiteURI']) ? $AccountingSupplierParty['Party']['WebsiteURI'] : null;
-        $partyIdentification = $this->getPartyIdentification($AccountingSupplierParty['Party']['PartyIdentification'], 'AccountingSupplierParty');
-        $partyName = isset($AccountingSupplierParty['Party']['PartyName']) ? $this->getPartyName($AccountingSupplierParty['Party']['PartyName'],"AccountingSupplierParty") : null;
-        $contact = isset($AccountingSupplierParty['Party']['Contact']) ? $this->getContact($AccountingSupplierParty['Party']['Contact'], 'AccountingSupplierParty') : null;
-        $postalAddress = $this->getAddress($AccountingSupplierParty['Party']['PostalAddress'], 'AccountingSupplierParty');
-        $partyTaxScheme = $this->getPartyTaxScheme($AccountingSupplierParty['Party']['PartyTaxScheme'], 'AccountingSupplierParty');
-        $contact = isset($AccountingSupplierParty['Party']['Contact']) ? $this->getContact($AccountingSupplierParty['Party']['Contact'], 'AccountingSupplierParty') : null;
-        $party = (new Party())
-            ->setWebsiteURI($website)
-            ->setPartyIdentification($partyIdentification)
-            ->setPartyName($partyName)
-            ->setPostalAddress($postalAddress)
-            ->setPartyTaxScheme($partyTaxScheme)
-            ->setContact($contact);
-
-        $this->AccountingSupplierParty = $party;
-    }
-    public function getAccountingSupplierParty(){
+        if(!isset($record['Party'])) custom_abort_('AccountingSupplierParty Party bos olamaz.');
+        $this->AccountingSupplierParty = (new Party())
+            ->setWebsiteURI(isset($record['Party']['WebsiteURI']) ? $record['Party']['WebsiteURI'] : null)
+            ->setPartyIdentification(isset($record['Party']['PartyIdentification']) ? $this->setPartyIdentification($record['Party']['PartyIdentification'], 'AccountingSupplierParty') : custom_abort_('AccountingSupplierParty'. ' Party PartyIdentification bos olamaz.'))
+            ->setPartyName(isset($record['Party']['PartyName']) ? $this->setPartyName($record['Party']['PartyName'],"AccountingSupplierParty") : null)
+            ->setPostalAddress(isset($record['Party']['PostalAddress']) ? $this->setAddress($record['Party']['PostalAddress'], 'AccountingSupplierParty') : custom_abort_('AccountingSupplierParty'. ' Party PostalAddress bos olamaz.'))
+            ->setPartyTaxScheme(isset($record['Party']['PartyTaxScheme']) ? $this->setPartyTaxScheme($record['Party']['PartyTaxScheme'], 'AccountingSupplierParty') : custom_abort_('AccountingSupplierParty'. ' Party PartyTaxScheme bos olamaz.'))
+            ->setContact(isset($record['Party']['Contact']) ? $this->setContact($record['Party']['Contact'], 'AccountingSupplierParty') : null);
         return $this->AccountingSupplierParty;
     }
 
-
-    public function setAccountingCustomerParty($AccountingCustomerParty){
-
-        if(!isset($AccountingCustomerParty['Party'])) custom_abort_('AccountingCustomerParty'. ' Party bos olamaz.');
-        if(!isset($AccountingCustomerParty['Party']['PartyIdentification'])) custom_abort_('AccountingCustomerParty'. ' Party PartyIdentification bos olamaz.');
-        // if(!isset($AccountingCustomerParty['Party']['PartyName'])) custom_abort_('AccountingCustomerParty'. ' Party PartyName bos olamaz.');
-        if(!isset($AccountingCustomerParty['Party']['PostalAddress'])) custom_abort_('AccountingCustomerParty'. ' Party PostalAddress bos olamaz.');
-
-        $website = isset($AccountingCustomerParty['Party']['WebsiteURI']) ? $AccountingCustomerParty['Party']['WebsiteURI'] : null;
-        $partyIdentification = $this->getPartyIdentification($AccountingCustomerParty['Party']['PartyIdentification'], 'AccountingCustomerParty');
-        $partyName = isset($AccountingCustomerParty['Party']['PartyName']) ? $this->getPartyName($AccountingCustomerParty['Party']['PartyName'],"AccountingCustomerParty") : null;
-        $contact = isset($AccountingCustomerParty['Party']['Contact']) ? $this->getContact($AccountingCustomerParty['Party']['Contact'], 'AccountingCustomerParty') : null;
-        
-        $postalAddress = $this->getAddress($AccountingCustomerParty['Party']['PostalAddress'], 'AccountingCustomerParty');
-
-        // $partyTaxScheme = $this->getPartyTaxScheme($AccountingCustomerParty['Party']['PartyTaxScheme'], 'AccountingCustomerParty');
-        $partyTaxScheme = isset($AccountingCustomerParty['Party']['PartyTaxScheme']) ? $this->getPartyTaxScheme($AccountingCustomerParty['Party']['PartyTaxScheme'], 'AccountingCustomerParty') : null;
-
-        $party = (new Party())
-            ->setWebsiteURI($website)
-            ->setPartyIdentification($partyIdentification)
-            ->setPartyName($partyName)
-            ->setPostalAddress($postalAddress)
-            ->setPartyTaxScheme($partyTaxScheme)
-            ->setContact($contact);
-
-        $this->AccountingCustomerParty = $party;
+    public function getAccountingSupplierParty()
+    {
+        return $this->AccountingSupplierParty;
     }
 
-    public function getAccountingCustomerParty(){
+    public function setAccountingCustomerParty($record)
+    {
+
+        if(!isset($record['Party'])) custom_abort_('AccountingCustomerParty'. ' Party bos olamaz.');
+        $this->AccountingCustomerParty =  (new Party())
+            ->setWebsiteURI(isset($record['Party']['WebsiteURI']) ? $record['Party']['WebsiteURI'] : null)
+            ->setPartyIdentification(isset($record['Party']['PartyIdentification']) ? $this->setPartyIdentification($record['Party']['PartyIdentification'], 'AccountingCustomerParty') : custom_abort_('AccountingCustomerParty Party PartyIdentification bos olamaz.'))
+            ->setPartyName(isset($record['Party']['PartyName']) ? $this->setPartyName($record['Party']['PartyName'],"AccountingCustomerParty") : null)
+            ->setPostalAddress(isset($record['Party']['PostalAddress']) ? $this->setAddress($record['Party']['PostalAddress'], 'AccountingCustomerParty') : custom_abort_('AccountingCustomerParty Party PostalAddress bos olamaz.'))
+            ->setPartyTaxScheme(isset($record['Party']['PartyTaxScheme']) ? $this->setPartyTaxScheme($record['Party']['PartyTaxScheme'], 'AccountingCustomerParty') : custom_abort_('AccountingCustomerParty  Party PartyTaxScheme bos olamaz.'))
+            ->setContact(isset($record['Party']['Contact']) ? $this->setContact($record['Party']['Contact'], 'AccountingCustomerParty') : null); 
         return $this->AccountingCustomerParty;
     }
-    public function TaxCategory($record, $type){
+
+    public function getAccountingCustomerParty()
+    {
+        return $this->AccountingCustomerParty;
+    }
+
+    public function TaxCategory($record, $type)
+    {
         return (new TaxCategory())
             ->setName(isset($record['Name']) ? $record['Name'] : null)
             ->setTaxExemptionReasonCode(isset($record['TaxExemptionReasonCode']) ? $record['TaxExemptionReasonCode'] : null)
             ->setTaxExemptionReason(isset($record['TaxExemptionReason']) ? $record['TaxExemptionReason'] : null)
             ->setTaxScheme(isset($record['TaxScheme']) ? $this->TaxScheme($record['TaxScheme'], $type) : null);
     }
-    public function setTaxScheme($record, $type){
+
+    public function setTaxScheme($record, $type)
+    {
         return (new TaxScheme())
             ->setName(isset($record['Name']) ? $record['Name'] : null)
             ->setTaxTypeCode(isset($record['TaxTypeCode']) ? $record['TaxTypeCode'] : null);
     }
 
-    public function setTaxSubtotal($TaxSubtotal){
+    public function setTaxSubtotal($TaxSubtotal)
+    {
         $taxSubTotals = [];
 
         foreach ($TaxSubtotal as $key => $value) {
@@ -355,55 +350,51 @@ abstract class AbstractEFatura extends TestCase
         return $taxSubTotals;
     }
 
-    public function setTaxtotal($TaxTotal){
-        //  dd($TaxTotal,$TaxTotal['TaxSubtotals'],isset($TaxTotal['TaxSubtotals']),isset($TaxTotal['TaxAmount']));
-        $taxAmount = isset($TaxTotal['TaxAmount']) ? $TaxTotal['TaxAmount'] : custom_abort_('TaxTotal'. ' TaxAmount bos olamaz.');
-        $taxSubtotal = isset($TaxTotal['TaxSubtotals']) ? $this->setTaxSubtotal($TaxTotal['TaxSubtotals']) : custom_abort_('TaxTotal TaxSubtotals bos olamaz.');
-        $this->TaxTotal = (new TaxTotal())
-            ->setTaxAmount($taxAmount)
-            ->addTaxSubTotal($taxSubtotal);
+    public function setTaxtotal($record)
+    {
+       
+        $this->Taxtotals =  (new TaxTotal())
+            ->setTaxAmount(isset($record['TaxAmount']) ? $record['TaxAmount'] : custom_abort_('TaxTotal'. ' TaxAmount bos olamaz.'))
+            ->addTaxSubTotal(isset($record['TaxSubtotals']) ? $this->setTaxSubtotal($record['TaxSubtotals']) : custom_abort_('TaxTotal TaxSubtotals bos olamaz.'));
+        return $this->Taxtotals;
+    }
+
+    public function getTaxtotal()
+    {
         return $this->TaxTotal;
     }
 
-    public function getTaxtotal(){
-        return $this->TaxTotal;
+    public function setWithholdingTaxTotal($withholdingTaxTotal)
+    {
+       return $this->setTaxtotal($withholdingTaxTotal);
     }
 
-    public function setItem($Item){
-        $name = isset($Item['Name']) ? $Item['Name'] : custom_abort_('Item'. ' Name bos olamaz.');
-        $description = isset($Item['Description']) ? $Item['Description'] : null;
-        $sellersItemIdentification = isset($Item['SellersItemIdentification']) ? $this->setSellersItemIdentification($Item['SellersItemIdentification']) : null;
-        $this->Item = (new Item())
-            ->setName($name)
-            ->setDescription($description);
-        return $this->Item;
+    public function setItem($record)
+    {
+
+        return  (new Item())
+            ->setName(isset($record['Name']) ? $record['Name'] : custom_abort_('Item'. ' Name bos olamaz.'))
+            ->setDescription(isset($record['Description']) ? $record['Description'] : null);
     }
 
-    public function setPrice($Price){
-        $priceAmount = isset($Price['PriceAmount']) ? $Price['PriceAmount'] : custom_abort_('Price'. ' PriceAmount bos olamaz.');
-        $this->Price = (new Price())
-            ->setPriceAmount($priceAmount);
-        return $this->Price;
+    public function setPrice($Price)
+    {
+        return (new Price())
+            ->setPriceAmount(isset($Price['PriceAmount']) ? $Price['PriceAmount'] : custom_abort_('Price'. ' PriceAmount bos olamaz.'));
     }
 
-    
-    public function setLegalMonetaryTotal($LegalMonetaryTotal){
-        $lineExtensionAmount = isset($LegalMonetaryTotal['LineExtensionAmount']) ? $LegalMonetaryTotal['LineExtensionAmount'] : custom_abort_('LegalMonetaryTotal'. ' LineExtensionAmount bos olamaz.');
-        $taxExclusiveAmount = isset($LegalMonetaryTotal['TaxExclusiveAmount']) ? $LegalMonetaryTotal['TaxExclusiveAmount'] : custom_abort_('LegalMonetaryTotal'. ' TaxExclusiveAmount bos olamaz.');
-        $taxInclusiveAmount = isset($LegalMonetaryTotal['TaxInclusiveAmount']) ? $LegalMonetaryTotal['TaxInclusiveAmount'] : custom_abort_('LegalMonetaryTotal'. ' TaxInclusiveAmount bos olamaz.');
-        $allowanceTotalAmount = isset($LegalMonetaryTotal['AllowanceTotalAmount']) ? $LegalMonetaryTotal['AllowanceTotalAmount'] : null;
-        $chargeTotalAmount = isset($LegalMonetaryTotal['ChargeTotalAmount']) ? $LegalMonetaryTotal['ChargeTotalAmount'] : null;
-        $payableRoundingAmount = isset($LegalMonetaryTotal['PayableRoundingAmount']) ? $LegalMonetaryTotal['PayableRoundingAmount'] : null;
-        $payableAmount = isset($LegalMonetaryTotal['PayableAmount']) ? $LegalMonetaryTotal['PayableAmount'] : custom_abort_('LegalMonetaryTotal'. ' PayableAmount bos olamaz.');
-
+    public function setLegalMonetaryTotal($record)
+    {
+       
         $this->LegalMonetaryTotal = (new LegalMonetaryTotal())
-            ->setLineExtensionAmount($lineExtensionAmount)
-            ->setTaxExclusiveAmount($taxExclusiveAmount)
-            ->setTaxInclusiveAmount($taxInclusiveAmount)
-            ->setAllowanceTotalAmount($allowanceTotalAmount)
-            ->setChargeTotalAmount($chargeTotalAmount)
-            ->setPayableRoundingAmount($payableRoundingAmount)
-            ->setPayableAmount($payableAmount);
+            ->setLineExtensionAmount(isset($record['LineExtensionAmount']) ? $record['LineExtensionAmount'] : custom_abort_('LegalMonetaryTotal  LineExtensionAmount bos olamaz.'))
+            ->setTaxExclusiveAmount(isset($record['TaxExclusiveAmount']) ? $record['TaxExclusiveAmount'] : custom_abort_('LegalMonetaryTotal TaxExclusiveAmount bos olamaz.'))
+            ->setTaxInclusiveAmount(isset($record['TaxInclusiveAmount']) ? $record['TaxInclusiveAmount'] : custom_abort_('LegalMonetaryTotal TaxInclusiveAmount bos olamaz.'))
+            ->setAllowanceTotalAmount(isset($record['AllowanceTotalAmount']) ? $record['AllowanceTotalAmount'] : null)
+            ->setChargeTotalAmount(isset($record['ChargeTotalAmount']) ? $record['ChargeTotalAmount'] : null)
+            ->setPayableRoundingAmount(isset($record['PayableRoundingAmount']) ? $record['PayableRoundingAmount'] : null)
+            ->setPayableAmount(isset($record['PayableAmount']) ? $record['PayableAmount'] : custom_abort_('LegalMonetaryTotal PayableAmount bos olamaz.'));
+        return $this->LegalMonetaryTotal;
     }
 
     public function getLegalMonetaryTotal(){
@@ -411,39 +402,24 @@ abstract class AbstractEFatura extends TestCase
     }
 
     public function setInvoiceLine($InvoiceLine){
-        $id = isset($InvoiceLine['ID']) ? $InvoiceLine['ID'] : custom_abort_('InvoiceLine'. ' ID bos olamaz.');
-        $unitCode =  isset($InvoiceLine['UnitCode']) ? $InvoiceLine['UnitCode'] : custom_abort_('InvoiceLine'. ' InvoicedQuantity UnitCode bos olamaz.');
-        $note = isset($InvoiceLine['Note']) ? $InvoiceLine['Note'] : null;
-        $invoicedQuantity = isset($InvoiceLine['InvoicedQuantity']) ? $InvoiceLine['InvoicedQuantity'] : custom_abort_('InvoiceLine'. ' InvoicedQuantity bos olamaz.');
-        $lineExtensionAmount = isset($InvoiceLine['LineExtensionAmount']) ? $InvoiceLine['LineExtensionAmount'] : custom_abort_('InvoiceLine'. ' LineExtensionAmount bos olamaz.');
-        $orderLineReference = isset($InvoiceLine['OrderLineReference']) ? $this->setOrderLineReference($InvoiceLine['OrderLineReference']) : null;
-        $despatchLineReference = isset($InvoiceLine['DespatchLineReference']) ? $this->setDespatchLineReference($InvoiceLine['DespatchLineReference']) : null;
-        $receiptLineReference = isset($InvoiceLine['ReceiptLineReference']) ? $this->setReceiptLineReference($InvoiceLine['ReceiptLineReference']) : null;
-        $delivery = isset($InvoiceLine['Delivery']) ? $this->setDelivery($InvoiceLine['Delivery']) : null;
-        $allowanceChange = isset($InvoiceLine['AllowanceCharge']) ? $this->setAllowanceCharge($InvoiceLine['AllowanceCharge']) : null;
-        $taxTotal = isset($InvoiceLine['TaxTotal']) ? $this->setTaxtotal($InvoiceLine['TaxTotal']) : null;
-        $withholdingTaxTotal = isset($InvoiceLine['WithholdingTaxTotal']) ? $this->setWithholdingTaxTotal($InvoiceLine['WithholdingTaxTotal']) : null;
-        $item = isset($InvoiceLine['Item']) ? $this->setItem($InvoiceLine['Item']) : custom_abort_('InvoiceLine'. ' Item bos olamaz.');
-        $price = isset($InvoiceLine['Price']) ? $this->setPrice($InvoiceLine['Price']) : custom_abort_('InvoiceLine'. ' Price bos olamaz.');
-        $subInvoiceLine = isset($InvoiceLine['SubInvoiceLine']) ? $this->setSubInvoiceLine($InvoiceLine['SubInvoiceLine']) : null;
 
         $this->InvoiceLine = (new InvoiceLine())
-            ->setId($id)
-            ->setUnitCode($unitCode)
-            ->setNote($note)
-            ->setInvoicedQuantity($invoicedQuantity)
-            ->setLineExtensionAmount($lineExtensionAmount)
-            ->setOrderLineReference($orderLineReference)
-            ->setDespatchLineReference($despatchLineReference)
-            ->setReceiptLineReference($receiptLineReference)
-            ->setDelivery($delivery)
-            ->setAllowanceCharge($allowanceChange)
-            ->setTaxTotal($taxTotal)
-            ->setWithholdingTaxTotal($withholdingTaxTotal)
-            ->setItem($item)
-            ->setPrice($price)
-            ->setTaxTotal($taxTotal)
-            ->setSubInvoiceLine($subInvoiceLine);
+            ->setId(isset($InvoiceLine['ID']) ? $InvoiceLine['ID'] : custom_abort_('InvoiceLine ID bos olamaz.'))
+            ->setUnitCode(isset($InvoiceLine['UnitCode']) ? $InvoiceLine['UnitCode'] : custom_abort_('InvoiceLine InvoicedQuantity UnitCode bos olamaz.'))
+            ->setNote(isset($InvoiceLine['Note']) ? $InvoiceLine['Note'] : null)
+            ->setInvoicedQuantity(isset($InvoiceLine['InvoicedQuantity']) ? $InvoiceLine['InvoicedQuantity'] : custom_abort_('InvoiceLine  InvoicedQuantity bos olamaz.'))
+            ->setLineExtensionAmount(isset($InvoiceLine['LineExtensionAmount']) ? $InvoiceLine['LineExtensionAmount'] : custom_abort_('InvoiceLine LineExtensionAmount bos olamaz.'))
+            ->setOrderLineReference(isset($InvoiceLine['OrderLineReference']) ? $this->setOrderLineReference($InvoiceLine['OrderLineReference']) : null)
+            ->setDespatchLineReference(isset($InvoiceLine['DespatchLineReference']) ? $this->setDespatchLineReference($InvoiceLine['DespatchLineReference']) : null)
+            ->setReceiptLineReference(isset($InvoiceLine['ReceiptLineReference']) ? $this->setReceiptLineReference($InvoiceLine['ReceiptLineReference']) : null)
+            ->setDelivery(isset($InvoiceLine['Delivery']) ? $this->setDelivery($InvoiceLine['Delivery']) : null)
+            ->setAllowanceCharge(isset($InvoiceLine['AllowanceCharge']) ? $this->setAllowanceCharge($InvoiceLine['AllowanceCharge']) : null)
+            ->setTaxTotal(isset($InvoiceLine['TaxTotal']) ? $this->setTaxtotal($InvoiceLine['TaxTotal']) : null)
+            ->setWithholdingTaxTotal(isset($InvoiceLine['WithholdingTaxTotal']) ? $this->setWithholdingTaxTotal($InvoiceLine['WithholdingTaxTotal']) : null)
+            ->setItem(isset($InvoiceLine['Item']) ? $this->setItem($InvoiceLine['Item']) : custom_abort_('InvoiceLine Item bos olamaz.'))
+            ->setPrice(isset($InvoiceLine['Price']) ? $this->setPrice($InvoiceLine['Price']) : custom_abort_('InvoiceLine Price bos olamaz.'))
+            ->setSubInvoiceLine(isset($InvoiceLine['SubInvoiceLine']) ? $this->setSubInvoiceLine($InvoiceLine['SubInvoiceLine']) : null);
+        return $this->InvoiceLine;
     }
 
     public function getInvoiceLine(){
@@ -455,13 +431,19 @@ abstract class AbstractEFatura extends TestCase
             $this->setInvoiceLine($InvoiceLine);
             $this->InvoiceLines[] = $this->getInvoiceLine();
         }
+        return $this->InvoiceLines;
     }
 
     public function getInvoiceLines(){
         return $this->InvoiceLines;
     }
 
-
-
+    public function isValid($tempFile)
+    {
+        $tempDom = new \DOMDocument();
+        $tempDom->load($tempFile);
+        $xsd_path = public_path('ubl/xsdrt/maindoc/UBL-Invoice-2.1.xsd');
+        return $tempDom->schemaValidate($xsd_path);
+    }
 
 }

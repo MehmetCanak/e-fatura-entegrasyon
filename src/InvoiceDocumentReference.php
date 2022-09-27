@@ -12,8 +12,8 @@ class InvoiceDocumentReference implements XmlSerializable
 {
     
         private $id;
-        private $documentTypeCode;
         private $issueDate;
+        private $documentTypeCode;
         private $documentType;
     
         /**
@@ -31,6 +31,24 @@ class InvoiceDocumentReference implements XmlSerializable
         public function setId($id): InvoiceDocumentReference
         {
             $this->id = $id;
+            return $this;
+        }
+
+        /**
+        * @return DateTime
+        */
+        public function getIssueDate()
+        {
+            return $this->issueDate;
+        }
+    
+        /**
+        * @param DateTime $issueDate
+        * @return InvoiceDocumentReference
+        */
+        public function setIssueDate($issueDate): InvoiceDocumentReference
+        {
+            $this->issueDate = $issueDate;
             return $this;
         }
     
@@ -53,24 +71,6 @@ class InvoiceDocumentReference implements XmlSerializable
         }
     
         /**
-        * @return DateTime
-        */
-        public function getIssueDate()
-        {
-            return $this->issueDate;
-        }
-    
-        /**
-        * @param DateTime $issueDate
-        * @return InvoiceDocumentReference
-        */
-        public function setIssueDate($issueDate): InvoiceDocumentReference
-        {
-            $this->issueDate = $issueDate;
-            return $this;
-        }
-    
-        /**
         * @return string
         */
         public function getDocumentType()
@@ -87,6 +87,15 @@ class InvoiceDocumentReference implements XmlSerializable
             $this->documentType = $documentType;
             return $this;
         }
+        public function validate()
+        {
+            if (empty($this->id)) {
+                throw new InvalidArgumentException('id is required');
+            }
+            if (empty($this->issueDate)) {
+                throw new InvalidArgumentException('issueDate is required');
+            }
+        }
     
         /**
         * @param Writer $writer
@@ -97,10 +106,19 @@ class InvoiceDocumentReference implements XmlSerializable
         {
             $writer->write([
                 Schema::CBC . 'ID' => $this->id,
-                // Schema::CBC . 'DocumentTypeCode' => $this->documentTypeCode,
                 Schema::CBC . 'IssueDate' => $this->issueDate,
-                // Schema::CBC . 'DocumentType' => $this->documentType,
             ]);
+
+            if($this->documentTypeCode != null){
+                $writer->write([
+                    Schema::CBC . 'DocumentTypeCode' => $this->documentTypeCode,
+                ]);
+            }
+            if($this->documentType != null){
+                $writer->write([
+                    Schema::CBC . 'DocumentType' => $this->documentType,
+                ]);
+            }
         }
 
 }

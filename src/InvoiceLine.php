@@ -187,12 +187,12 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
-    public function getWithholdingTaxTotal():?WithholdingTaxTotal
+    public function getWithholdingTaxTotal():?TaxTotal
     {
         return $this->withholdingTaxTotal;
     }
 
-    public function setWithholdingTaxTotal(?WithholdingTaxTotal $withholdingTaxTotal): InvoiceLine
+    public function setWithholdingTaxTotal(?TaxTotal $withholdingTaxTotal): InvoiceLine
     {
         $this->withholdingTaxTotal = $withholdingTaxTotal;
         return $this;

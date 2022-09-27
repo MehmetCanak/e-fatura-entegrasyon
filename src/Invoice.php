@@ -37,6 +37,7 @@ class Invoice implements XmlSerializable
     private $paymentTerms;
     private $allowanceCharges;
     private $taxTotal;
+    private $withholdingTaxTotal;
     private $legalMonetaryTotal;
     private $invoiceLines;
 
@@ -518,6 +519,23 @@ class Invoice implements XmlSerializable
         $this->taxTotal = $taxTotal;
         return $this;
     }
+    /**
+     * @return TaxTotal
+     */
+    public function getWithholdingTaxTotal(): ?TaxTotal
+    {
+        return $this->withholdingTaxTotal;
+    }
+
+    /**
+     * @param TaxTotal $taxTotal
+     * @return Invoice
+     */
+    public function setWithholdingTaxTotal(?TaxTotal $withholdingTaxTotal): Invoice
+    {
+        $this->withholdingTaxTotal = $withholdingTaxTotal;
+        return $this;
+    }
 
     /**
      * @return LegalMonetaryTotal
@@ -680,6 +698,11 @@ class Invoice implements XmlSerializable
                 Schema::CAC . 'OrderReference' => $this->orderReference
             ]);
         }
+        if ($this->billingReference != null) {
+            $writer->write([
+                Schema::CAC . 'BillingReference' => $this->billingReference
+            ]);
+        }
         if ($this->contractDocumentReference !== null) {
             $writer->write([
                 Schema::CAC . 'ContractDocumentReference' => $this->contractDocumentReference,
@@ -738,6 +761,11 @@ class Invoice implements XmlSerializable
         if ($this->taxTotal !== null) {
             $writer->write([
                 Schema::CAC . 'TaxTotal' => $this->taxTotal
+            ]);
+        }
+        if ($this->withholdingTaxTotal !== null) {
+            $writer->write([
+                Schema::CAC . 'WithholdingTaxTotal' => $this->withholdingTaxTotal
             ]);
         }
         $writer->write([
