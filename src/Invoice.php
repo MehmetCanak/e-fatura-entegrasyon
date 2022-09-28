@@ -26,6 +26,7 @@ class Invoice implements XmlSerializable
     private $invoicePeriod;
     private $orderReference;
     private $billingReference;
+    private $despatchDocumentReferences;
     private $contractDocumentReference;
     private $additionalDocumentReference;
     private $signatures;
@@ -227,7 +228,7 @@ class Invoice implements XmlSerializable
      * @param string $note
      * @return Invoice
      */
-    public function setNote(string $note)
+    public function setNote(?string $note)
     {
         $this->note = $note;
         return $this;
@@ -319,6 +320,17 @@ class Invoice implements XmlSerializable
     public function setBillingReference(?BillingReference $billingReference): Invoice
     {
         $this->billingReference = $billingReference;
+        return $this;
+    }
+
+    public function getDespatchDocumentReferences()
+    {
+        return $this->despatchDocumentReferences;
+    }
+
+    public function setDespatchDocumentReferences(?array $despatchDocumentReferences): Invoice
+    {
+        $this->despatchDocumentReferences = $despatchDocumentReferences;
         return $this;
     }
 
@@ -702,6 +714,13 @@ class Invoice implements XmlSerializable
             $writer->write([
                 Schema::CAC . 'BillingReference' => $this->billingReference
             ]);
+        }
+        if ($this->despatchDocumentReferences != null) {
+            foreach ($this->despatchDocumentReferences as $despatchDocumentReference) {
+                $writer->write([
+                    Schema::CAC . 'DespatchDocumentReference' => $despatchDocumentReference
+                ]);
+            }
         }
         if ($this->contractDocumentReference !== null) {
             $writer->write([

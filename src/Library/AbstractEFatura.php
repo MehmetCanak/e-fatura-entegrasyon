@@ -34,6 +34,8 @@ use web36\EFatura\Wsdl\getPrefixList;
 use web36\EFatura\WsdlQuery\GetLastInvoiceIdAndDate;
 use web36\EFatura\Wsdl\getNewUUID;
 use web36\EFatura\WsdlQuery\QueryDocumentWS;
+use web36\EFatura\DespatchDocumentReference;
+use web36\EFatura\OrderReference;
 
 
 abstract class AbstractEFatura
@@ -52,6 +54,9 @@ abstract class AbstractEFatura
     private $Note = null;
     private $DocumentCurrencyCode;
     private $LineCountNumeric;
+    private $OrderReference;
+    private $DespatchDocumentReference;
+    private $DespatchDocumentReferences = [];
     private $Signatures = [];
     private $AccountingSupplierParty;
     private $AccountingCustomerParty;
@@ -437,6 +442,33 @@ abstract class AbstractEFatura
     public function getInvoiceLines(){
         return $this->InvoiceLines;
     }
+    public function setOrderReference($OrderReference){
+        $this->OrderReference = (new OrderReference())
+            ->setID(isset($OrderReference['ID']) ? $OrderReference['ID'] : custom_abort_('OrderReference ID bos olamaz.'))
+            ->setSalesOrderId(isset($OrderReference['SalesOrderID']) ? $OrderReference['SalesOrderID'] : null)
+            ->setIssueDate(isset($OrderReference['IssueDate']) ? $OrderReference['IssueDate'] : custom_abort_('OrderReference IssueDate bos olamaz.'));
+        return $this->OrderReference;
+    }
+
+    public function setDespatchDocumentReference($DespatchDocumentReference){
+        $this->DespatchDocumentReference = (new DespatchDocumentReference())
+            ->setId(isset($DespatchDocumentReference['ID']) ? $DespatchDocumentReference['ID'] : custom_abort_('DespatchDocumentReference ID bos olamaz.'))
+            ->setIssueDate(isset($DespatchDocumentReference['IssueDate']) ? $DespatchDocumentReference['IssueDate'] : custom_abort_('DespatchDocumentReference IssueDate bos olamaz.'));
+        return $this->DespatchDocumentReference;
+    }
+
+    public function getDespatchDocumentReference(){
+        return $this->DespatchDocumentReference;
+    }
+
+    public function setDespatchDocumentReferences($DespatchDocumentReferences){
+        foreach ($DespatchDocumentReferences as $DespatchDocumentReference) {
+            $this->setDespatchDocumentReference($DespatchDocumentReference);
+            $this->DespatchDocumentReferences[] = $this->getDespatchDocumentReference();
+        }
+        return $this->DespatchDocumentReferences;
+    }
+
 
     public function isValid($tempFile)
     {

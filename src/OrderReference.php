@@ -9,6 +9,7 @@ class OrderReference implements XmlSerializable
 {
     private $id;
     private $salesOrderId;
+    private $issueDate;
 
     /**
      * @return string
@@ -40,10 +41,38 @@ class OrderReference implements XmlSerializable
      * @param string $salesOrderId
      * @return OrderReference
      */
-    public function setSalesOrderId(string $salesOrderId): OrderReference
+    public function setSalesOrderId(?string $salesOrderId): OrderReference
     {
         $this->salesOrderId = $salesOrderId;
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+
+     public function getIssueDate(): ?string
+    {
+        return $this->issueDate;
+    }
+
+    /**
+     * @param string $issueDate
+     * @return OrderReference
+     */
+    public function setIssueDate(string $issueDate): OrderReference
+    {
+        $this->issueDate = $issueDate;
+        return $this;
+    }
+    public function validate()
+    {
+        if ($this->id == null) {
+            throw new \Exception('OrderReference ID is required');
+        }
+        if ($this->issueDate == null) {
+            throw new \Exception('OrderReference IssueDate is required');
+        }
     }
 
     /**
@@ -54,11 +83,15 @@ class OrderReference implements XmlSerializable
      */
     public function xmlSerialize(Writer $writer)
     {
-        if ($this->id !== null) {
-            $writer->write([ Schema::CBC . 'ID' => $this->id ]);
-        }
+
+        $this->validate();
+
+        $writer->write([ Schema::CBC . 'ID' => $this->id ]);
+
         if ($this->salesOrderId !== null) {
             $writer->write([ Schema::CBC . 'SalesOrderID' => $this->salesOrderId ]);
         }
+
+        $writer->write([ Schema::CBC . 'IssueDate' => $this->issueDate ]);
     }
 }

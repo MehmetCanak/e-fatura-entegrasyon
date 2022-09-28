@@ -1,11 +1,9 @@
 <?php 
 namespace web36\EFatura\Library;
 use web36\EFatura\Invoice;
-use web36\EFatura\BillingReference;
-use web36\EFatura\InvoiceDocumentReference;
 use web36\EFatura\Generator;
 
-class TevkifatFatura extends AbstractEFatura
+class IstisnaFatura extends AbstractEFatura
 {
     private $withholdingTaxTotal;
 
@@ -33,7 +31,6 @@ class TevkifatFatura extends AbstractEFatura
             ->setAccountingSupplierParty(isset($record['AccountingSupplierParty'])? $this->setAccountingSupplierParty($record['AccountingSupplierParty']) : custom_abort_('AccountingSupplierParty bos olamaz.'))
             ->setAccountingCustomerParty(isset($record['AccountingCustomerParty'])? $this->setAccountingCustomerParty($record['AccountingCustomerParty']) : custom_abort_('AccountingCustomerParty bos olamaz.'))
             ->setTaxTotal($taxtotal)
-            ->setWithholdingTaxTotal(isset($record['WithholdingTaxTotal'])? $this->setWithholdingTaxTotal($record['WithholdingTaxTotal']) : custom_abort_('WithholdingTaxTotal bos olamaz.'))
             ->setLegalMonetaryTotal(isset($record['LegalMonetaryTotal'])? $this->setLegalMonetaryTotal($record['LegalMonetaryTotal']) : custom_abort_('LegalMonetaryTotal bos olamaz.'))
             ->setInvoiceLines(isset($record['InvoiceLines'])? $this->setInvoiceLines($record['InvoiceLines']) : custom_abort_('InvoiceLines bos olamaz.'));
         $generator = new Generator();
@@ -50,6 +47,3 @@ class TevkifatFatura extends AbstractEFatura
         dd($is_valid,$invoice);
     }
 }
-
-
-
