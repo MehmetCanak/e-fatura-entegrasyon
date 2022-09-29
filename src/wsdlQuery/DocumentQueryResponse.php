@@ -1,5 +1,4 @@
 <?php
-namespace web36\EFatura\WsdlQuery;
 
 class DocumentQueryResponse
 {
