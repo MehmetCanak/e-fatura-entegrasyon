@@ -9,13 +9,13 @@ abstract class AbstractService
 
     private const SUCCESS_CODE = 
     [
-        '0'
+        '0','000'
     ];
 
 
     protected $queryStateErrorCodes = 
     [
-        '510' ,'511'
+        '510' ,'511','400'
     ];
 
     public function controlResponse($response)
@@ -32,6 +32,26 @@ abstract class AbstractService
            custom_abort_("Error Message : ". $response->stateExplanation . " Error Code : " . $response->queryState);
         
         return $response->documents;   
+    }
+
+    public function controlInvoice($response)
+    {
+        print_r($response);
+        if(!isset($response->return ) || $response->return == null)
+                            return false;
+        
+        $response = $response->return;
+        if (! in_array($response->code, self::SUCCESS_CODE)) {
+           custom_abort_("Error Message : ". $response->explanation . " Error Code : " . $response->explanation);
+        }
+        if(!isset($response->documentUUID) && $response->documentUUID == null) 
+           custom_abort_("Error Message : ". $response->explanation . " Error Code : " . $response->explanation);
+
+        if(!isset($response->documentID) && $response->documentID == null) 
+           custom_abort_("Error Message : ". $response->explanation . " Error Code : " . $response->explanation);
+        
+        dd($response);
+        return $response;   
     }
 
 

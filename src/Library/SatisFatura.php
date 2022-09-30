@@ -11,8 +11,6 @@ class SatisFatura extends AbstractEFatura
 
     public function createXml($record)
     {
-
-
         $service  = new Service();
         $uuid = $service->getNewUUID();
         $QueryService = new QueryService(); 
@@ -54,7 +52,7 @@ class SatisFatura extends AbstractEFatura
         $dom->save($path);
 
         $is_valid = $this->isValid($path);
-       
+        $service->sendInvoice($outputXMLString, $uuid , $lastInvoiceIdAndDate, $record['IssueDate']);
         dd($is_valid,$invoice);
     }
 }

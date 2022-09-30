@@ -152,7 +152,7 @@ class Invoice implements XmlSerializable
      * @return Invoice
      */
 
-    public function setCopyIndicator(bool $copyIndicator): Invoice
+    public function setCopyIndicator($copyIndicator): Invoice
     {
         $this->copyIndicator = $copyIndicator;
         return $this;
@@ -674,7 +674,7 @@ class Invoice implements XmlSerializable
             Schema::CBC . 'CustomizationID' => $this->customizationID,
             Schema::CBC . 'ProfileID' => $this->profileID,
             Schema::CBC . 'ID' => $this->id,
-            Schema::CBC . 'CopyIndicator' => $this->copyIndicator ? 'true' : 'false',
+            Schema::CBC . 'CopyIndicator' => $this->copyIndicator ,
             Schema::CBC . 'UUID' => $this->UUID
         ]);
 

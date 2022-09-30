@@ -4,6 +4,7 @@ namespace web36\EFatura\Services;
 
 use web36\EFatura\Wsdl\InvoiceWS;
 use web36\EFatura\Wsdl\InputDocument;
+use web36\EFatura\Wsdl\sendInvoice;
 
 class Service extends AbstractService
 {
@@ -20,17 +21,21 @@ class Service extends AbstractService
                 mt_rand(0, 0xffff), mt_rand(0, 0xffff));
     }
 
-    public function sendInvoice($invoice)
+    public function sendInvoice($xml, $documentUUID, $documentId, $documentDate)
     {
-        $inputDocument = new InputDocument();
-        $inputDocument->document_id = $invoice->document_id;
-        $inputDocument->document_type = $invoice->document_type;
-        
-        $sendInvoice = new sendInvoice();
-        $sendInvoice->inputDocumentList = $invoice;
+        $sourceUrn =  config('efatura.MBT_SourceUrn');
+        $destinationUrn =  config('efatura.MBT_DestinationUrn');
+
+        $list = [];
+
+        $inputDocument = new InputDocument($documentUUID, $xml, $sourceUrn, $destinationUrn, null, null, $documentId, null, $documentDate, null);
+
+        $list = [$inputDocument];
+        $invoice = new sendInvoice($list);
         $invoiceWS = new InvoiceWS();
-        $invoiceWS->sendInvoice($invoice);
-        dd($invoiceWS);
+        $response = $invoiceWS->sendInvoice($invoice);
+        $document = $this->controlInvoice($response);
+        dd($document);
     }
 
 }
