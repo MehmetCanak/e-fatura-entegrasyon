@@ -1,10 +1,10 @@
 <?php
 
-namespace web36\EFatura\Library;
+namespace web36\EFatura\Library\Taslak;
 
-use web36\EFatura\AllowanceCharge;
 use web36\EFatura\Library\SimpleInvoiceTest;
 use PHPUnit\Framework\TestCase;
+use web36\EFatura\AllowanceCharge;
 use web36\EFatura\BillingReference;
 use web36\EFatura\UBLExtension;
 use web36\EFatura\Country;
@@ -406,6 +406,7 @@ abstract class AbstractEFatura
     public function getLegalMonetaryTotal(){
         return $this->LegalMonetaryTotal;
     }
+
     public function setAllowanceCharges($AllowanceCharges)
     {
         $allowanceCharges = [];

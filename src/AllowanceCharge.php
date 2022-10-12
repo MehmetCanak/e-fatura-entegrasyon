@@ -8,13 +8,12 @@ use Sabre\Xml\XmlSerializable;
 class AllowanceCharge implements XmlSerializable
 {
     private $chargeIndicator;
-    private $allowanceChargeReasonCode;
     private $allowanceChargeReason;
     private $multiplierFactorNumeric;
-    private $baseAmount;
+    private $sequenceNumeric;
     private $amount;
-    private $taxTotal;
-    private $taxCategory;
+    private $baseAmount;
+    private $perUnitAmount;
 
     /**
      * @return bool
@@ -28,29 +27,12 @@ class AllowanceCharge implements XmlSerializable
      * @param bool $chargeIndicator
      * @return AllowanceCharge
      */
-    public function setChargeIndicator(bool $chargeIndicator): AllowanceCharge
+    public function setChargeIndicator(string $chargeIndicator): AllowanceCharge
     {
         $this->chargeIndicator = $chargeIndicator;
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getAllowanceChargeReasonCode(): ?int
-    {
-        return $this->allowanceChargeReasonCode;
-    }
-
-    /**
-     * @param int $allowanceChargeReasonCode
-     * @return AllowanceCharge
-     */
-    public function setAllowanceChargeReasonCode(?int $allowanceChargeReasonCode): AllowanceCharge
-    {
-        $this->allowanceChargeReasonCode = $allowanceChargeReasonCode;
-        return $this;
-    }
 
     /**
      * @return string
@@ -88,25 +70,18 @@ class AllowanceCharge implements XmlSerializable
         return $this;
     }
 
-    /**
-     * @return float
-     */
-    public function getBaseAmount(): ?float
+    public function getSequenceNumeric() :?float
     {
-        return $this->baseAmount;
+        return $this->sequenceNumeric;
     }
 
-    /**
-     * @param float $baseAmount
-     * @return AllowanceCharge
-     */
-    public function setBaseAmount(?float $baseAmount): AllowanceCharge
+    public function setSequenceNumeric(?float $sequenceNumeric): AllowanceCharge
     {
-        $this->baseAmount = $baseAmount;
+        $this->sequenceNumeric = $sequenceNumeric;
         return $this;
     }
 
-    /**
+       /**
      * @return float
      */
     public function getAmount(): ?float
@@ -125,39 +100,42 @@ class AllowanceCharge implements XmlSerializable
     }
 
     /**
-     * @return TaxCategory
+     * @return float
      */
-    public function getTaxCategory(): ?TaxCategory
+    public function getBaseAmount(): ?float
     {
-        return $this->taxCategory;
+        return $this->baseAmount;
     }
 
     /**
-     * @param TaxCategory $taxCategory
+     * @param float $baseAmount
      * @return AllowanceCharge
      */
-    public function setTaxCategory(?TaxCategory $taxCategory): AllowanceCharge
+    public function setBaseAmount(?float $baseAmount): AllowanceCharge
     {
-        $this->taxCategory = $taxCategory;
+        $this->baseAmount = $baseAmount;
         return $this;
     }
 
-    /**
-     * @return TaxCategory
-     */
-    public function getTaxtotal(): ?TaxTotal
+    public function getPerUnitAmount() : ?float
     {
-        return $this->taxTotal;
+        return $this->perUnitAmount;
     }
 
-    /**
-     * @param TaxTotal $taxTotal
-     * @return AllowanceCharge
-     */
-    public function setTaxtotal(?TaxTotal $taxTotal): AllowanceCharge
+    public function setPerUnitAmount(?float $perUnitAmount): AllowanceCharge
     {
-        $this->taxTotal = $taxTotal;
+        $this->perUnitAmount = $perUnitAmount;
         return $this;
+    }
+
+    public function validate()
+    {
+        if ($this->chargeIndicator == null) {
+            throw new \Exception('AllowanceCharge ChargeIndicator is required');
+        }
+        if ($this->amount == null) {
+            throw new \Exception('AllowanceCharge Amount is required');
+        }
     }
 
     /**
@@ -168,15 +146,12 @@ class AllowanceCharge implements XmlSerializable
      */
     public function xmlSerialize(Writer $writer)
     {
+        $this->validate();
+
         $writer->write([
-            Schema::CBC . 'ChargeIndicator' => $this->chargeIndicator ? 'true' : 'false',
+            Schema::CBC . 'ChargeIndicator' => $this->chargeIndicator ,
         ]);
 
-        if ($this->allowanceChargeReasonCode !== null) {
-            $writer->write([
-                Schema::CBC . 'AllowanceChargeReasonCode' => $this->allowanceChargeReasonCode
-            ]);
-        }
 
         if ($this->allowanceChargeReason !== null) {
             $writer->write([
@@ -190,6 +165,12 @@ class AllowanceCharge implements XmlSerializable
             ]);
         }
 
+        if($this->sequenceNumeric !== null){
+            $writer->write([
+                Schema::CBC . 'SequenceNumeric' => $this->sequenceNumeric
+            ]);
+        }
+
         $writer->write([
             [
                 'name' => Schema::CBC . 'Amount',
@@ -200,23 +181,23 @@ class AllowanceCharge implements XmlSerializable
             ],
         ]);
 
-        if ($this->taxCategory !== null) {
-            $writer->write([
-                Schema::CAC . 'TaxCategory' => $this->taxCategory
-            ]);
-        }
-
-        if ($this->taxTotal !== null) {
-            $writer->write([
-                Schema::CAC . 'TaxTotal' => $this->taxTotal
-            ]);
-        }
-
         if ($this->baseAmount !== null) {
             $writer->write([
                 [
                     'name' => Schema::CBC . 'BaseAmount',
                     'value' => $this->baseAmount,
+                    'attributes' => [
+                        'currencyID' => Generator::$currencyID
+                    ]
+                ]
+            ]);
+        }
+
+        if($this->perUnitAmount !== null){
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'PerUnitAmount',
+                    'value' => $this->perUnitAmount,
                     'attributes' => [
                         'currencyID' => Generator::$currencyID
                     ]

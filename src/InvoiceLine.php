@@ -16,7 +16,7 @@ class InvoiceLine implements XmlSerializable
     private $despatchLineReference;
     private $receiptLineReference;
     private $delivery;
-    private $allowanceCharge;
+    private $allowanceCharges;
     private $taxTotal;
     private $withholdingTaxTotal;
     private $item;
@@ -158,14 +158,14 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
-    public function getAllowanceCharge():?AllowanceCharge
+    public function getAllowanceCharges():?AllowanceCharge
     {
-        return $this->allowanceCharge;
+        return $this->allowanceCharges;
     }
 
-    public function setAllowanceCharge(?AllowanceCharge $allowanceCharge): InvoiceLine
+    public function setAllowanceCharges(?array $allowanceCharges): InvoiceLine
     {
-        $this->allowanceCharge = $allowanceCharge;
+        $this->allowanceCharges = $allowanceCharges;
         return $this;
     }
 
@@ -327,10 +327,12 @@ class InvoiceLine implements XmlSerializable
             ]); 
         }
 
-        if($this->allowanceCharge !== null){
-            $writer->write([
-                Schema::CAC . 'AllowanceCharge' => $this->allowanceCharge
-            ]); 
+        if($this->allowanceCharges !== null){
+            foreach ($this->allowanceCharges as $allowanceCharge) {
+                $writer->write([
+                    Schema::CAC . 'AllowanceCharge' => $allowanceCharge
+                ]);
+            }
         }
 
         if ($this->taxTotal !== null) {
