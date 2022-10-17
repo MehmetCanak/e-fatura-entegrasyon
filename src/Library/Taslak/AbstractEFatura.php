@@ -2,6 +2,7 @@
 
 namespace web36\EFatura\Library\Taslak;
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use web36\EFatura\Library\SimpleInvoiceTest;
 use PHPUnit\Framework\TestCase;
 use web36\EFatura\AllowanceCharge;
@@ -500,13 +501,14 @@ abstract class AbstractEFatura
     {
 
         $headers = [
-            // 'Content-Type' => 'application/xml',
-            'Content-Type' => 'text/xml',
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+            'Content-Type' => 'application/xml',
+            // 'Content-Type' => 'text/xml',
             'Cache-Control' => 'public',
             'Content-Description' => 'File Transfer',
             'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
             'Content-Transfer-Encoding' => 'binary'
-        ];
+        ]; 
         return response()->download($path, $fileName, $headers);
     }
 
@@ -524,5 +526,86 @@ abstract class AbstractEFatura
         }
         
     }
+    public function saveHtml($path, $fileName, $html)
+    {
+        try{
+            $dom = new \DOMDocument("1.0", "utf-8");
+            $dom->loadXML($html);
+            $dom->encoding = "utf-8";
+            $dom->save($path);
+        }catch (\Exception $e){
+            custom_abort_('HTML dosyası kaydedilemedi.');
+        }
+    }
+    public function htmlDownload($htmlPath,$fileName){
+        $headers = [
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+            'Content-Type' => 'text/html',
+            'Cache-Control' => 'public',
+            'Content-Description' => 'File Transfer',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'Content-Transfer-Encoding' => 'binary'
+        ]; 
+        // $pdf = Pdf::loadHtml($newdom->saveXML());
+        return response()->download($htmlPath, $fileName, $headers);
+    }
 
+    public function responseHtml($record,$xml){
+        if(!isset($xml['path']) || !isset($xml['fileName'])) custom_abort_('XML dosyası kaydedilemedi.');
+        if($xml['path'] == null ||  $xml['fileName'] == null) custom_abort_('XML dosyası kaydedilemedi.');
+        $path = $xml['path'];
+        $xmlFileName = $xml['fileName'];
+        $htmlFileName = $record['UUID'].'.html';
+        $xsltPath = public_path('ubl/xml/general.xslt');
+        $htmlPath = public_path($record['UUID'].'.html');
+
+        try{
+            error_reporting(0);
+            $xsl = new \DomDocument();
+            $xsl->load($xsltPath);
+
+            $inputdom = new \DomDocument();
+            $inputdom->load(public_path($xmlFileName));
+            $proc = new \XsltProcessor();
+            $xsl = $proc->importStylesheet($xsl);
+            $proc->setParameter(null, "titles", "Titles");
+            $newdom = $proc->transformToDoc($inputdom);
+            $saveHtml = $this->saveHtml($htmlPath, $htmlFileName, $newdom->saveXML());
+
+            return $this->htmlDownload($htmlPath,$htmlFileName);
+        }catch (\Exception $e){
+            return $e->getMessage();
+        }
+    }
+
+    public function responsePdf($record,$xml)
+    {
+        $path = $xml['path'];
+        $xmlFileName = $xml['fileName'];
+        $htmlFileName = $record['UUID'].'.html';
+        $pdfFileName = $record['UUID'].'.pdf';
+        $xsltPath = public_path('ubl/xml/general.xslt');
+        $htmlPath = public_path($record['UUID'].'.html');
+
+        try{
+            error_reporting(0);
+            $xsl = new \DomDocument();
+            $xsl->load($xsltPath);
+
+            $inputdom = new \DomDocument();
+            $inputdom->load(public_path($xmlFileName));
+            $proc = new \XsltProcessor();
+            $xsl = $proc->importStylesheet($xsl);
+            $proc->setParameter(null, "titles", "Titles");
+            $newdom = $proc->transformToDoc($inputdom);
+            $saveHtml = $this->saveHtml($htmlPath, $htmlFileName, $newdom->saveXML());
+
+            $pdf = Pdf::loadHTML( $newdom->saveXML(),'UTF-8')->setPaper('a4', 'landscape')->setWarnings(false)->save($pdfFileName);
+            $response = $pdf->download($pdfFileName);
+            return $response;
+
+        }catch (\Exception $e){
+            return custom_abort_("Pdf olusturulamadi.");
+        }
+    }
 }

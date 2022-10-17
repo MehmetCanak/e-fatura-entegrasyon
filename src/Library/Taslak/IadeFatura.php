@@ -21,15 +21,24 @@ class IadeFatura extends AbstractEFatura
         return (new BillingReference())
             ->setInvoiceDocumentReference(isset($record['InvoiceDocumentReference']) ? $this->setInvoiceDocumentReference($record['InvoiceDocumentReference'], 'BillingReference') : custom_abort_('BillingReference InvoiceDocumentReference bos olamaz'));
     }
+    public function setBillingReferences($records)
+    {
+        $billingReferences = [];
+        foreach ($records as $record) {
+            $billingReferences[] = $this->setBillingReference($record);
+        }
 
-    public function createXml($record)
+        return $billingReferences;
+    }
+
+    public function getXml($record)
     {
         $invoice = (new Invoice())
             ->setExtensions($this->setUBLExtension())
             ->setUBLVersionID(isset($record['UBLVersionID']) ? $this->setUBLVersionID($record['UBLVersionID']) : custom_abort_('UBLVersionID bos olamaz.'))
             ->setCustomizationID(isset($record['CustomizationID']) ? $this->setCustomizationID($record['CustomizationID']) : custom_abort_('CustomizationID bos olamaz.'))
             ->setProfileID(isset($record['ProfileID'])? $this->setProfileID($record['ProfileID']) : custom_abort_('ProfileID bos olamaz.'))
-            ->setID(isset($record['ID']) ? $this->setID($record['ID']) : custom_abort_('ID bos olamaz.'))
+            ->setID(isset($record['ID']) ? $this->setID($record['ID']) : null)
             ->setCopyIndicator(isset($record['CopyIndicator'])? $this->setCopyIndicator($record['CopyIndicator']) : custom_abort_('CopyIndicator bos olamaz.'))
             ->setUUID(isset($record['UUID'])? $this->setUUID($record['UUID']) : custom_abort_('UUID bos olamaz.'))
             ->setIssueDate(new \DateTime(isset($record['IssueDate'])? $this->setIssueDate($record['IssueDate']) : custom_abort_('IssueDate bos olamaz.')))
@@ -39,7 +48,7 @@ class IadeFatura extends AbstractEFatura
             ->setLineCountNumeric(isset($record['LineCountNumeric'])? $this->setLineCountNumeric($record['LineCountNumeric']) : custom_abort_('LineCountNumeric bos olamaz.'))
             ->setOrderReference(isset($record['OrderReference'])? $this->setOrderReference($record['OrderReference']) : null)
             ->setDespatchDocumentReferences(isset($record['DespatchDocumentReferences'])? $this->setDespatchDocumentReferences($record['DespatchDocumentReferences']) : null)
-            ->setBillingReference(isset($record['BillingReference'])? $this->setBillingReference($record['BillingReference']) : custom_abort_('BillingReference bos olamaz.'))
+            ->setBillingReferences(isset($record['BillingReferences'])? $this->setBillingReferences($record['BillingReferences']) : custom_abort_('BillingReferences bos olamaz.'))
             ->setSignatures(isset($record['Signatures'])? $this->setSignatures($record['Signatures']) : custom_abort_('Signatures bos olamaz.'))
             ->setAccountingSupplierParty(isset($record['AccountingSupplierParty'])? $this->setAccountingSupplierParty($record['AccountingSupplierParty']) : custom_abort_('AccountingSupplierParty bos olamaz.'))
             ->setAccountingCustomerParty(isset($record['AccountingCustomerParty'])? $this->setAccountingCustomerParty($record['AccountingCustomerParty']) : custom_abort_('AccountingCustomerParty bos olamaz.'))
@@ -55,7 +64,30 @@ class IadeFatura extends AbstractEFatura
     
             $this->saveXml($path, $fileName , $outputXMLString);
     
-            return $this->xmlDownload($path,$fileName);
+            return [
+                'path' => $path,
+                'fileName' => $fileName,
+            ];   
+    }
+    public function createXml($record)
+    {
+        $xml = $this->getXml($record);
+        $path = $xml['path'];
+        $fileName = $xml['fileName'];
+        return $this->xmlDownload($path,$fileName);
+    }
+
+    
+    public function createHtml($record){
+        $xml = $this->getXml($record);
+        $responseXml = $this->responseHtml($record,$xml);
+        return $responseXml;
+    }
+    public function createPdf($record){
+
+        $xml = $this->getXml($record);
+        $response = $this->responsePdf($record,$xml);
+        return $response;
     }
 }
 

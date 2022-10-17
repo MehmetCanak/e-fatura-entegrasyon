@@ -1,0 +1,51 @@
+    public function createHtmlllll($recorName,$name,$path,$htmlPath, $xsltPath, $fileName , $outputXMLString)
+    {
+
+        // dd($recorName,$name,$path,$htmlPath, $xsltPath, $fileName , $outputXMLString);
+        try{
+            error_reporting(0);
+            /* load the xml file and stylesheet as domdocuments */
+            $xsl = new \DomDocument();
+            $xsl->load(public_path('ubl\xml\general.xslt'));
+            $inputdom = new \DomDocument();
+            $inputdom->load(public_path('745F78CB-1C76-4849-BFCD-46D277AB14E8.xml'));
+            /* create the processor and import the stylesheet */
+            $proc = new \XsltProcessor();
+            $xsl = $proc->importStylesheet($xsl);
+            $proc->setParameter(null, "titles", "Titles");
+            /* transform and output the xml document */
+            // $newdom = $proc->transformToDoc($inputdom);
+            $newdom = $proc->transformToDoc($inputdom);
+            $dom = new \DOMDocument();
+            $dom->loadXML($newdom->saveXML());
+            $dom->encoding = "utf-8";
+            $dom->save($htmlPath);
+            
+
+            dd($dom);
+
+            $pdf = Pdf::loadHTML( $newdom->saveXML(),'UTF-8')->setPaper('a4', 'landscape')->setWarnings(false)->save($recorName.'.pdf');
+            $headers = [
+                'Access-Control-Expose-Headers' => 'Content-Disposition',
+                // 'Content-Type' => 'application/xml',
+                'Content-Type' => 'text/html',
+                'Cache-Control' => 'public',
+                'Content-Description' => 'File Transfer',
+                'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+                'Content-Transfer-Encoding' => 'binary'
+            ]; 
+            // $pdf = Pdf::loadHtml($newdom->saveXML());
+            $response = $pdf->download('test.pdf');
+            return $response;
+            return response()->download($htmlPath, $fileName, $headers);
+            dd( $htmlPath,$fileName,$headers,response()->download($htmlPath, $fileName, $headers) );
+            return response()->download($path, $fileName, $headers);
+
+
+            return $newdom->saveXML();
+            dd($newdom->saveXML());
+        }
+        catch(\Exception $e){
+            dd($e);
+        }
+    }

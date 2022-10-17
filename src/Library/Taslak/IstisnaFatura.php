@@ -8,7 +8,7 @@ class IstisnaFatura extends AbstractEFatura
     private $withholdingTaxTotal;
 
 
-    public function createXml($record)
+    public function getXml($record)
     {
 
         $taxtotal = isset($record['TaxTotal'])? $this->setTaxtotal($record['TaxTotal']) : custom_abort_('TaxTotal bos olamaz.');
@@ -17,7 +17,7 @@ class IstisnaFatura extends AbstractEFatura
             ->setUBLVersionID(isset($record['UBLVersionID']) ? $this->setUBLVersionID($record['UBLVersionID']) : custom_abort_('UBLVersionID bos olamaz.'))
             ->setCustomizationID(isset($record['CustomizationID']) ? $this->setCustomizationID($record['CustomizationID']) : custom_abort_('CustomizationID bos olamaz.'))
             ->setProfileID(isset($record['ProfileID'])? $this->setProfileID($record['ProfileID']) : custom_abort_('ProfileID bos olamaz.'))
-            ->setID(isset($record['ID']) ? $this->setID($record['ID']) : custom_abort_('ID bos olamaz.'))
+            ->setID(isset($record['ID']) ? $this->setID($record['ID']) : null)
             ->setCopyIndicator(isset($record['CopyIndicator'])? $this->setCopyIndicator($record['CopyIndicator']) : custom_abort_('CopyIndicator bos olamaz.'))
             ->setUUID(isset($record['UUID'])? $this->setUUID($record['UUID']) : custom_abort_('UUID bos olamaz.'))
             ->setIssueDate(new \DateTime(isset($record['IssueDate'])? $this->setIssueDate($record['IssueDate']) : custom_abort_('IssueDate bos olamaz.')))
@@ -42,6 +42,30 @@ class IstisnaFatura extends AbstractEFatura
     
             $this->saveXml($path, $fileName , $outputXMLString);
     
-            return $this->xmlDownload($path,$fileName);
+            return [
+                'path' => $path,
+                'fileName' => $fileName,
+            ];   
+    }
+
+    public function createXml($record)
+    {
+        $xml = $this->getXml($record);
+        $path = $xml['path'];
+        $fileName = $xml['fileName'];
+        return $this->xmlDownload($path,$fileName);
+    }
+
+    
+    public function createHtml($record){
+        $xml = $this->getXml($record);
+        $responseXml = $this->responseHtml($record,$xml);
+        return $responseXml;
+    }
+    public function createPdf($record){
+
+        $xml = $this->getXml($record);
+        $response = $this->responsePdf($record,$xml);
+        return $response;
     }
 }

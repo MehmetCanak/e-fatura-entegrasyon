@@ -4,12 +4,13 @@ use web36\EFatura\Invoice;
 use web36\EFatura\Generator;
 use web36\EFatura\Services\QueryService;
 use web36\EFatura\Services\Service;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SatisFatura extends AbstractEFatura
 {
 
 
-    public function createXml($record)
+    public function getXml($record)
     {
         $invoice = (new Invoice())
             ->setExtensions($this->setUBLExtension())
@@ -32,15 +33,38 @@ class SatisFatura extends AbstractEFatura
             ->setTaxTotal(isset($record['TaxTotal'])? $this->setTaxtotal($record['TaxTotal']) : custom_abort_('TaxTotal bos olamaz.'))
             ->setLegalMonetaryTotal(isset($record['LegalMonetaryTotal'])? $this->setLegalMonetaryTotal($record['LegalMonetaryTotal']) : custom_abort_('LegalMonetaryTotal bos olamaz.'))
             ->setInvoiceLines(isset($record['InvoiceLines'])? $this->setInvoiceLines($record['InvoiceLines']) : custom_abort_('InvoiceLines bos olamaz.'));
-        $generator = new Generator();
-        $outputXMLString = $generator->invoice($invoice);
 
-        $path = public_path($record['UUID'].'.xml');
-        $fileName = $record['UUID'].'.xml';
+            $generator = new Generator();
+            $outputXMLString = $generator->invoice($invoice);
+    
+            $path = public_path($record['UUID'].'.xml');
+            $fileName = $record['UUID'].'.xml';
+            $xsltPath = public_path('ubl/xml/general.xslt');
+            $this->saveXml($path, $fileName , $outputXMLString);
+            return [
+                'path' => $path,
+                'fileName' => $fileName,
+            ];   
+    }
 
-        $this->saveXml($path, $fileName , $outputXMLString);
-
+    public function createXml($record)
+    {
+        $xml = $this->getXml($record);
+        $path = $xml['path'];
+        $fileName = $xml['fileName'];
         return $this->xmlDownload($path,$fileName);
-        
+    }
+
+    
+    public function createHtml($record){
+        $xml = $this->getXml($record);
+        $responseXml = $this->responseHtml($record,$xml);
+        return $responseXml;
+    }
+    public function createPdf($record){
+
+        $xml = $this->getXml($record);
+        $response = $this->responsePdf($record,$xml);
+        return $response;
     }
 }

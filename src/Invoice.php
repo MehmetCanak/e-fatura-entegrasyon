@@ -25,7 +25,7 @@ class Invoice implements XmlSerializable
     private $lineCountNumeric;
     private $invoicePeriod;
     private $orderReference;
-    private $billingReference;
+    private $billingReferences;
     private $despatchDocumentReferences;
     private $contractDocumentReference;
     private $additionalDocumentReference;
@@ -312,14 +312,14 @@ class Invoice implements XmlSerializable
         return $this;
     }
 
-    public function getbillingReference()
+    public function getbillingReferences()
     {
-        return $this->billingReference;
+        return $this->billingReferences;
     }
 
-    public function setBillingReference(?BillingReference $billingReference): Invoice
+    public function setBillingReferences(?array $billingReferences): Invoice
     {
-        $this->billingReference = $billingReference;
+        $this->billingReferences = $billingReferences;
         return $this;
     }
 
@@ -605,9 +605,6 @@ class Invoice implements XmlSerializable
         if ($this->profileID === null) {
             throw new InvalidArgumentException('Missing invoice profileID');
         }
-        if ($this->id === null) {
-            throw new InvalidArgumentException('Missing invoice id');
-        }
         if($this->copyIndicator == null){
             throw new InvalidArgumentException('Missing invoice copyIndicator');
         }
@@ -710,10 +707,12 @@ class Invoice implements XmlSerializable
                 Schema::CAC . 'OrderReference' => $this->orderReference
             ]);
         }
-        if ($this->billingReference != null) {
-            $writer->write([
-                Schema::CAC . 'BillingReference' => $this->billingReference
-            ]);
+        if ($this->billingReferences != null) {
+            foreach ($this->billingReferences as $billingReference) {
+                $writer->write([
+                    Schema::CAC . 'BillingReference' => $billingReference
+                ]);
+            }
         }
         if ($this->despatchDocumentReferences != null) {
             foreach ($this->despatchDocumentReferences as $despatchDocumentReference) {
